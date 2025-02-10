@@ -4,7 +4,7 @@
   "description": "A DnD character sheet manager",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --passWithNoTests",
     "start": "node --watch ./src/app.js"
   },
   "author": "Igor Amaral",
