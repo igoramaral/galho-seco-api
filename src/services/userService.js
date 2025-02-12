@@ -1,3 +1,4 @@
+const DuplicateKeyError = require('../errors/duplicatedKeyError');
 const user = require('../models/user');
 const User = require('../models/user');
 
@@ -13,10 +14,16 @@ class UserService {
                     user = result;
                 })                
         } catch (err){
-            console.log("UserService::createUser - ", err)
+            if (err instanceof DuplicateKeyError){
+                console.log("UserService::createUser - ", err.message)
+            } else {
+                console.log("UserService::updateUser - ", err)
+            }
+            
             throw(err);
         }
 
+        console.log(`UserService::createUser - User ${user._id} - ${$user.email} created successfully`);
         return user;
     }
 
@@ -25,8 +32,14 @@ class UserService {
     }
 
     async findUser(userId){
-        let user = User.findById(userId)
-        return user ? user : null;        
+        let user = await User.findById(userId)
+        if (user != null){
+            console.log(`UserService::findUser - User with id ${userId} found successfully`);
+            return user
+        } else {
+            console.log(`UserService::findUser - User with id ${userId} not found`);
+            return null
+        }        
     }
 
     async updateUser(userId, userData){
@@ -38,19 +51,17 @@ class UserService {
             }
             
             Object.assign(user, userData);
-            try{
-               await user.save()
-                    .then((result) => {
-                        user = result;
-                    })                
-            } catch (err){
-                console.log("UserService::updateUser - ", err)
-                throw(err);
-            }
+            user = await user.save();
 
+            console.log(`UserService::updateUser - User ${userId} updated successfully`);
             return user;
         } catch(err){
-            console.log("UserService::updateUser - ", err)
+            if (err instanceof DuplicateKeyError){
+                console.log(`UserService::updateUser - ${err.name}: ${err.message}`);
+            } else {
+                console.log("UserService::updateUser - ", err)
+            }
+            
             throw err;
         }
     }
@@ -63,6 +74,7 @@ class UserService {
               throw new Error("Usuário não encontrado");
             }
         
+            console.log(`UserService::deleteUser - User ${userId} created successfully`);
             return deletedUser;
           } catch (error) {
             console.error("UserService::deleteUser - ", error);
