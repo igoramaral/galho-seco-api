@@ -1,11 +1,21 @@
+const DuplicateKeyError = require('../errors/duplicatedKeyError');
 const userService = require('../services/userService');
 
 const createUser = async (req, res) => {
     try {
         const user = await userService.createUser(req.body);
         res.status(201).json(user);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+    } catch (err) {
+        if(err instanceof DuplicateKeyError) {
+            res.status(err.statusCode).json({ 
+                error: err.name,
+                field: err.field,
+                message: err.message
+             });
+        } else {
+            res.status(400).json({ err: err.message });
+        }
+        
     }
 };
 
@@ -38,8 +48,14 @@ const updateUser = async (req, res) => {
 
         res.status(200).json(user);
     } catch (err){
-        if (err.message == "Usuário não encontrado"){
+        if (err.message == "Usuário não encontrado" ){
            res.status(404).json({ error: "Usuário não encontrado" });
+        } else if (err instanceof DuplicateKeyError) {
+            res.status(err.statusCode).json({ 
+                error: err.name,
+                field: err.field,
+                message: err.message
+             });
         } else {
             res.status(500).json({ error: "Error - " + err.message });
         }

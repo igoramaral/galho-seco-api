@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const DuplicateKeyError = require('../errors/duplicatedKeyError');
 const SALT_WORK_FACTOR = 10;
 
 // Schema
@@ -53,5 +54,14 @@ UserSchema.methods.checkPassword = function(candidatePassword, cb) {
         cb(null, isMatch);
     });
 };
+
+UserSchema.post("save", function (error, doc, next) {
+    //Duplicated Key Treatment
+    if (error.name === "MongoServerError" && error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0]; // Obtém o campo duplicado
+      return next(new DuplicateKeyError(field, `${field} já está em uso`));
+    }
+    next(error);
+  });
 
 module.exports = mongoose.model('User', UserSchema);
