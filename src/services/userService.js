@@ -23,7 +23,7 @@ class UserService {
             throw(err);
         }
 
-        console.log(`UserService::createUser - User ${user._id} - ${$user.email} created successfully`);
+        console.log(`UserService::createUser - User ${user._id} - ${user.email} created successfully`);
         return user;
     }
 
@@ -38,7 +38,7 @@ class UserService {
             return user
         } else {
             console.log(`UserService::findUser - User with id ${userId} not found`);
-            return null
+            throw new Error("Usuário não encontrado")
         }        
     }
 

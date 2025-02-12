@@ -31,12 +31,13 @@ const getUsers = async (req, res) => {
 const getUser = async (req, res) => {
     const { id } = req.params;
 
-    const user = await userService.findUser(id);
-    if (user) {
+    try {
+        const user = await userService.findUser(id);
+
         res.status(200).json(user);
-    } else {
+    } catch (err) {
         res.status(404).json({ error: "Usuário não encontrado" });
-    }       
+    }     
 }
 
 const updateUser = async (req, res) => {
