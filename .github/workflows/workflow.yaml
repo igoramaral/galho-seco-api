@@ -1,0 +1,18 @@
+name: Galho Seco CI
+
+on: [push, pull_request]
+
+jobs:
+    continuous-integration:
+        runs-on: ubuntu
+
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setting up Node.js
+              uses: actions/setup-node@v2
+              with:
+                node-version: 20.x
+            - name: run install and tests
+              run: |
+                npm install
+                npm test
