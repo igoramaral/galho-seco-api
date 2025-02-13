@@ -16,7 +16,7 @@ afterAll(() => {
     console.warn.mockRestore();
 });
 
-describe("Create User", () => {
+describe("userService.createUser", () => {
     beforeEach(() => {
         mockingoose.resetAll();
     })
@@ -54,7 +54,7 @@ describe("Create User", () => {
     })
 })
 
-describe("Update user", () => {
+describe("userService.updateUser", () => {
     beforeEach(() => {
         mockingoose.resetAll();
     })
@@ -98,7 +98,7 @@ describe("Update user", () => {
     })
 })
 
-describe ("find user", () => {
+describe ("userService.findUser", () => {
     beforeEach(() => {
         mockingoose.resetAll();
     })
@@ -124,7 +124,7 @@ describe ("find user", () => {
     })
 })
 
-describe ("delete user", () => {
+describe ("userService.deleteUser", () => {
     beforeEach(() => {
         mockingoose.resetAll();
     })

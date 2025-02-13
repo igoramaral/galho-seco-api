@@ -13,7 +13,7 @@ const createUser = async (req, res) => {
                 message: err.message
              });
         } else {
-            res.status(400).json({ err: err.message });
+            res.status(500).json({ error: "Internal Server Error" });
         }
         
     }
@@ -58,7 +58,7 @@ const updateUser = async (req, res) => {
                 message: err.message
              });
         } else {
-            res.status(500).json({ error: "Error - " + err.message });
+            res.status(500).json({ error: "Internal Server Error" });
         }
     }
 }
@@ -74,7 +74,7 @@ const deleteUser = async (req, res) => {
         if (err.message == "Usuário não encontrado"){
             return res.status(404).json({ error: "Usuário não encontrado" });
         } else {
-            return res.status(500).json({ error: "Error - " + err.message });
+            return res.status(500).json({ error: "Internal Server Error" });
         }
     }
 }
