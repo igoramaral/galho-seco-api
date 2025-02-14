@@ -1,6 +1,6 @@
 <a id="readme-top"></a>
 
-# :game_die: Galho Seco - A D&D character sheet manager
+# :game_die: Galho Seco - A D&D Character Sheet Manager
 
 ![GitHub top language](https://img.shields.io/github/languages/top/igoramaral/galho_seco)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/igoramaral/galho_seco/workflow.yaml)
@@ -19,21 +19,21 @@ This project is part of the final project for the Computer and Information Engin
 - [License](#license)
 - [Author](#author)
 
-## 📜 About the Project
+## About the Project
 
 The goal of this project is to build an API capable of supporting the functionalities of Galho Seco, a D&D character sheet manager app for mobile devices.
 
 Galho Seco will allow users to create, edit and rolls tests on their D&D character sheet wherever and whenever they want.
 
-One of the main goals of this project is to integrate the app with [Foundry VTT](https://www.foundryvtt.com) to allow players to roll tests for their characters without the need of being connected to Foundry VTT.
+One of the main goals of this project is to integrate the app with [Foundry VTT](https://foundryvtt.com) to allow players to roll tests for their characters without the need of being connected to Foundry VTT.
 
-## 🛠 Built with
+## Built with
 
 ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 
-## ⚙️ Installation
+## Installation
 
 Clone the repo:
 ```sh
@@ -51,13 +51,13 @@ Run the project:
 npm start
 ```
 
-## 🚀 Usage
+## Usage
 
-## 🧪 Running Tests
+## Running Tests
 
-## 📜 License
+## License
 
-## 👤 Author
+## Author
 
 **Igor Amaral**
 
