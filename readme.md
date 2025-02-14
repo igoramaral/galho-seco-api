@@ -11,13 +11,13 @@ This project is part of the final project for the Computer and Information Engin
 
 
 ## 📖 Table of Contents
-- [About the Project](#📜-about-the-project)
-- [Built with](#🛠-built-with)
-- [Installation](#⚙️-installation)
-- [Usage](#🚀-usage)
-- [Running Tests](#🧪-running-tests)
-- [License](#📜-license)
-- [Author](#👤-author)
+- [About the Project](#about-the-project)
+- [Built with](#built-with)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Running Tests](#running-tests)
+- [License](#license)
+- [Author](#author)
 
 ## 📜 About the Project
 
@@ -57,7 +57,7 @@ npm start
 
 ## 📜 License
 
-## 👤 Autor
+## 👤 Author
 
 **Igor Amaral**
 
