@@ -32,7 +32,7 @@ class UserService {
     }
 
     async findUser(userId){
-        let user = await User.findById(userId)
+        let user = await User.findById(userId, "-password")
         if (user != null){
             console.log(`UserService::findUser - User with id ${userId} found successfully`);
             return user
