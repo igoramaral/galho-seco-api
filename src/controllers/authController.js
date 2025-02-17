@@ -3,22 +3,23 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const login = async (req, res) => {
+
     const { email, password } = req.body;
 
-    if (!email && !password){
+    if (!email || !password){
         return res.status(400).json({ error: "Email e Senha são obrigatórios" });
     }
 
     try {
 
         // Check if user exists
-        const user = User.findOne({ email });
+        const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(401).json({ error: "Usuário não encontrado" }); 
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await user.checkPassword(password);
         if (!isPasswordValid) {
             return res.status(401).json({ error: "Senha incorreta" });
         }

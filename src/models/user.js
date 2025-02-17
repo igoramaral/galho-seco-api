@@ -48,11 +48,8 @@ UserSchema.pre('save', function(next) {
     })
 });
 
-UserSchema.methods.checkPassword = function(candidatePassword, cb) {
-    bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-        if (err) return cb(err);
-        cb(null, isMatch);
-    });
+UserSchema.methods.checkPassword = function(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
 };
 
 UserSchema.post("save", function (error, doc, next) {

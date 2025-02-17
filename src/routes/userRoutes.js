@@ -4,7 +4,6 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-// Definindo as rotas
 router.post('/user', userController.createUser);
 router.get('/users/', userController.getUsers);
 router.get('/user/:id', authMiddleware, userController.getUser);
