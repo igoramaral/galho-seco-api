@@ -30,6 +30,14 @@ const getUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
     const { id } = req.params;
+    const userId = req.userId;
+
+    console.log("userId na URL:", id);
+    console.log("authUserId no req:", userId);
+
+    if( userId !== id){
+        return res.status(403).json({ error: "Você não tem permissão para obter outro perfil" });
+    }
 
     try {
         const user = await userService.findUser(id);
@@ -43,7 +51,12 @@ const getUser = async (req, res) => {
 const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const userData = req.body
+        const userId = req.userId;
+        const userData = req.body;
+
+        if( userId !== id){
+            return res.status(403).json({ error: "Você não tem permissão para editar outro perfil" });
+        }
 
         const user = await userService.updateUser(id, userData);
 
@@ -66,6 +79,11 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.userId;
+
+        if( userId !== id){
+            return res.status(403).json({ error: "Você não tem permissão para deletar outro perfil" });
+        }
 
         const user = await userService.deleteUser(id);
 
