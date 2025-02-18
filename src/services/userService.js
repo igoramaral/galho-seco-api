@@ -1,10 +1,13 @@
 const DuplicateKeyError = require('../errors/duplicatedKeyError');
-const user = require('../models/user');
 const User = require('../models/user');
+const crypto = require('crypto');
 
 class UserService {
 
     async createUser(userData) {
+
+        let verificationToken = crypto.randomBytes(32).toString('hex');
+        userData.verificationToken = verificationToken;
 
         let user = new User(userData);
 
@@ -32,7 +35,7 @@ class UserService {
     }
 
     async findUser(userId){
-        let user = await User.findById(userId)
+        let user = await User.findById(userId, "-password")
         if (user != null){
             console.log(`UserService::findUser - User with id ${userId} found successfully`);
             return user

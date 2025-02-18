@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 //Routes
 const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // initializing the application
 const app = express();
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // routing path
 app.use('/api/v1', userRoutes);
+app.use('/api/v1', authRoutes);
 
 // Start the server
 mongoose
