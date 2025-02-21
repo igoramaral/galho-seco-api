@@ -19,6 +19,33 @@ const skillSchema = new mongoose.Schema({
     }
 })
 
+const bonusSchema = new mongoose.Schema({
+    mwak: {
+        attack: { type: String, default: "" },
+        damage: { type: String, default: "" }
+    },
+    rwak: {
+        attack: { type: String, default: "" },
+        damage: { type: String, default: "" }
+    },
+    msak: {
+        attack: { type: String, default: "" },
+        damage: { type: String, default: "" }
+    },
+    rsak: {
+        attack: { type: String, default: "" },
+        damage: { type: String, default: "" }
+    },
+    abilities: {
+        check: { type: String, default: "" },
+        save: { type: String, default: "" },
+        skill: { type: String, default: "" }
+    },
+    spell: {
+        dc: { type: String, default: "" }
+    }
+})
+
 const spellSlotSchema = new mongoose.Schema({
     spell1: {
         value: { type: Number, default: 0 },
@@ -208,6 +235,8 @@ const characterSchema = new mongoose.Schema(
             },
             attributes: { type: attributeSchema, default: () => ({}) },
             details: { type: detailsSchema, default: () => ({}) },
+            traits: { type: traitsSchema, default: () => ({}) },
+            bonuses: { type: bonusSchema, default: () => ({}) },
             currency: {
                 pp: { type: Number, default: 0 },
                 gp: { type: Number, default: 0 },
