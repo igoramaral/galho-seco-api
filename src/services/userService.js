@@ -18,9 +18,9 @@ class UserService {
                 })                
         } catch (err){
             if (err instanceof DuplicateKeyError){
-                console.log("UserService::createUser - ", err.message)
+                console.error("UserService::createUser - ", err.message)
             } else {
-                console.log("UserService::updateUser - ", err)
+                console.error("UserService::updateUser - ", err)
             }
             
             throw(err);
@@ -40,7 +40,7 @@ class UserService {
             console.log(`UserService::findUser - User with id ${userId} found successfully`);
             return user
         } else {
-            console.log(`UserService::findUser - User with id ${userId} not found`);
+            console.error(`UserService::findUser - User with id ${userId} not found`);
             throw new Error("Usuário não encontrado")
         }        
     }
@@ -60,9 +60,9 @@ class UserService {
             return user;
         } catch(err){
             if (err instanceof DuplicateKeyError){
-                console.log(`UserService::updateUser - ${err.name}: ${err.message}`);
+                console.error(`UserService::updateUser - ${err.name}: ${err.message}`);
             } else {
-                console.log("UserService::updateUser - ", err)
+                console.error("UserService::updateUser - ", err)
             }
             
             throw err;
@@ -77,12 +77,12 @@ class UserService {
               throw new Error("Usuário não encontrado");
             }
         
-            console.log(`UserService::deleteUser - User ${userId} created successfully`);
+            console.log(`UserService::deleteUser - User ${userId} deleted successfully`);
             return deletedUser;
-          } catch (error) {
-            console.error("UserService::deleteUser - ", error);
-            throw error;
-          }
+        } catch (error) {
+        console.error("UserService::deleteUser - ", error);
+        throw error;
+        }
     }
 }
 
