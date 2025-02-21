@@ -53,7 +53,7 @@ const deleteCharacter = async (req, res) => {
     try {
         let char = await characterService.deleteCharacter(charId, userId);
 
-        res.status(200).json({ message: "Personagem deletado com sucesso" });
+        res.status(200).json({ message: "Personagem excluído com sucesso" });
     } catch(err) {
         if (err.message == "Personagem não encontrado"){
             return res.status(404).json({ error: "Personagem não encontrado" });
