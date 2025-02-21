@@ -10,7 +10,10 @@ const characterSchema = new mongoose.Schema(
             type: String,
             default: "character",
         },
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        user: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            required: true,
+            ref: 'User' },
         items: {
             type: []
         },
