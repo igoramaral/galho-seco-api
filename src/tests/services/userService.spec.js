@@ -1,5 +1,6 @@
 const userService = require('../../services/userService');
 const User =  require('../../models/user');
+const Character = require('../../models/character');
 const mockingoose = require('mockingoose');
 const DuplicateKeyError = require('../../errors/duplicatedKeyError');
 
@@ -132,6 +133,7 @@ describe ("userService.deleteUser", () => {
         const userId = "65a1234567890abcde123456";
         const mockUser = { _id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
 
+        mockingoose(Character).toReturn({ acknowledge: true, deletedCount: 0 }, 'deleteMany')
         mockingoose(User).toReturn(mockUser, 'findOneAndDelete');
 
         const user = await userService.deleteUser(userId);
@@ -143,6 +145,7 @@ describe ("userService.deleteUser", () => {
 
     it("should raise error if user not found", async () => {
         const userId = "65a1234567890abcde123456";
+        mockingoose(Character).toReturn({ acknowledge: true, deletedCount: 0 }, 'deleteMany')
         mockingoose(User).toReturn(null, 'findOne');
 
         await expect(userService.deleteUser(userId)).rejects.toThrow("Usuário não encontrado");

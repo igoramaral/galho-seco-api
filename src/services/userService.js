@@ -1,5 +1,6 @@
 const DuplicateKeyError = require('../errors/duplicatedKeyError');
 const User = require('../models/user');
+const Character = require('../models/character');
 const crypto = require('crypto');
 
 class UserService {
@@ -71,6 +72,14 @@ class UserService {
 
     async deleteUser(userId){
         try {
+
+            const charDelete = await Character.deleteMany({ userId });
+            if (charDelete.deletedCount === 0){
+                console.log(`UserService::deleteUser - user ${userId} has no characters to be deleted`)
+            } else {
+                console.log(`UserService::deleteUser - ${charDelete.deletedCount} characters of user ${userId} deleted successfully`)
+            }
+            
             const deletedUser = await User.findByIdAndDelete(userId);
         
             if (!deletedUser) {
