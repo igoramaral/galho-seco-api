@@ -84,7 +84,7 @@ const deleteUser = async (req, res) => {
 
         const user = await userService.deleteUser(id);
 
-        res.status(200).json({ message: "Usuário deletado com sucesso" });
+        res.status(200).json({ message: "Usuário excluído com sucesso" });
     } catch (err){
         if (err.message == "Usuário não encontrado"){
             return res.status(404).json({ error: "Usuário não encontrado" });
