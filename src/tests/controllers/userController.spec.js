@@ -196,7 +196,7 @@ describe("userController.deleteUser", ()=>{
         await userController.deleteUser(req, res);
 
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ message: "Usuário deletado com sucesso" });
+        expect(res.json).toHaveBeenCalledWith({ message: "Usuário excluído com sucesso" });
     })
 
     it("should return 404 when user not found", async () => {
