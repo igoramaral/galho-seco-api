@@ -86,14 +86,17 @@ describe ("characterService.updateCharacter", ()=>{
         let userId = "65d5a7f2e7b3a3c4f4b9d5e1";
         let charId = '65a1234567890abcde123456';
         let returnedChar = { _id: charId, user: userId, name: "Bruenor", type: "character", system: {}, items: [] }
-        let savedChar = { _id: charId, user: userId, name: "Drizzt", type: "character", system: { str: { value: 12, proficient: 1 } }, items: [] } 
+        let savedChar = { _id: charId, user: userId, name: "Drizzt", type: "character", system: { abilities: { str: { value: 12, proficient: 1 } } }, items: [] } 
         let charData = {
             name: "Drizzt",
             system: {
-                str: {
-                    value: 12,
-                    proficient: 1
+                abilities: {
+                    str: {
+                        value: 12,
+                        proficient: 1
+                    }
                 }
+                
             }
         }
 
@@ -104,8 +107,8 @@ describe ("characterService.updateCharacter", ()=>{
 
         expect(char).toBeDefined();
         expect(char.name).toEqual(charData.name);
-        expect(char.system.str).toBeDefined();
-        expect(char.system.str.value).toEqual(charData.system.str.value);
+        expect(char.system.abilities.str.value).toEqual(charData.system.abilities.str.value);
+        expect(char.system.abilities.str.proficient).toEqual(charData.system.abilities.str.proficient);
     })
 
     it('should throw error if character not found', async () => {
