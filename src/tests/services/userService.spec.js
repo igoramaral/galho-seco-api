@@ -1,7 +1,6 @@
 const userService = require('../../services/userService');
 const User =  require('../../models/user');
 const mockingoose = require('mockingoose');
-const { isObjectIdOrHexString } = require('mongoose');
 const DuplicateKeyError = require('../../errors/duplicatedKeyError');
 
 beforeAll(() => {
@@ -60,7 +59,7 @@ describe("userService.updateUser", () => {
     })
 
     it("should update a user if data is provided correctly", async () => {
-        const userId = "65a1234567890abcde123456";;
+        const userId = "65a1234567890abcde123456";
         const updateData = { nome: "Biruleibe", email: "biruleibe@email.com"};
         const userBefore = { _id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
         const savedUser = { _id: userId, nome: "Biruleibe", email: "biruleibe@email.com", password: "123", dataNascimento: "2000-01-01" };
@@ -139,7 +138,7 @@ describe ("userService.deleteUser", () => {
 
         expect(user).toBeDefined();
         expect(user.nome).toEqual(mockUser.nome);
-        expect(user.email).toEqual(mockUser.email);;
+        expect(user.email).toEqual(mockUser.email);
     })
 
     it("should raise error if user not found", async () => {
