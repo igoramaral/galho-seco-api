@@ -1,6 +1,4 @@
-const User = require('../models/user');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const authService = require('../services/authService');
 
 const login = async (req, res) => {
 
@@ -11,30 +9,20 @@ const login = async (req, res) => {
     }
 
     try {
+        const login = await authService.login(email, password);
 
-        // Check if user exists
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(401).json({ error: "Usuário não encontrado" }); 
-        }
-
-        const isPasswordValid = await user.checkPassword(password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ error: "Senha incorreta" });
-        }
-
-        const token = jwt.sign(
-            { userId: user._id },  
-            process.env.JWT_SECRET, 
-            { expiresIn: "1h" }     
-        );
-
-        res.status(200).json({ token, userId: user._id });
+        res.status(200).json({ token: login.token, user: login.user });
     } catch (err) {
-        res.status(500).json({ error: "Internal Server Error" })
+        if(err.message === 'Usuário não encontrado' || err.message === "Senha incorreta"){
+            res.status(401).json({ error: err.message })
+        } else{
+            console.error(err);
+            res.status(500).json({ error: "Internal Server Error" })
+        } 
     }
 }
+
+
 
 module.exports = {
     login

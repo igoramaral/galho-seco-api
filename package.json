@@ -1,11 +1,12 @@
 {
-  "name": "galho_seco",
+  "name": "galho-seco-api",
   "version": "1.0.0",
-  "description": "A DnD character sheet manager",
-  "main": "index.js",
+  "description": "A DnD Character Sheet Manager API",
+  "main": "src/app.js",
   "scripts": {
     "test": "jest --passWithNoTests",
-    "start": "nodemon ./src/app.js"
+    "start": "nodemon ./src/app.js",
+    "start:prod": "node ./src/app.js"
   },
   "author": "Igor Amaral",
   "license": "ISC",

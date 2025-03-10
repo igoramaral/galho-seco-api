@@ -21,7 +21,7 @@ class UserService {
             if (err instanceof DuplicateKeyError){
                 console.error("UserService::createUser - ", err.message)
             } else {
-                console.error("UserService::updateUser - ", err)
+                console.error("UserService::createUser - ", err)
             }
             
             throw(err);
