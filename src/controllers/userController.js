@@ -1,4 +1,5 @@
 const DuplicateKeyError = require('../errors/duplicatedKeyError');
+const MissingKeyError = require('../errors/missingKeyError');
 const userService = require('../services/userService');
 
 const createUser = async (req, res) => {
@@ -6,7 +7,7 @@ const createUser = async (req, res) => {
         const user = await userService.createUser(req.body);
         res.status(201).json(user);
     } catch (err) {
-        if(err instanceof DuplicateKeyError) {
+        if(err instanceof DuplicateKeyError || err instanceof MissingKeyError) {
             res.status(err.statusCode).json({ 
                 error: err.name,
                 field: err.field,
@@ -16,15 +17,6 @@ const createUser = async (req, res) => {
             res.status(500).json({ error: "Internal Server Error" });
         }
         
-    }
-};
-
-const getUsers = async (req, res) => {
-    try {
-        const users = await userService.getAllUsers();
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
     }
 };
 
@@ -61,7 +53,7 @@ const updateUser = async (req, res) => {
     } catch (err){
         if (err.message == "Usuário não encontrado" ){
            res.status(404).json({ error: "Usuário não encontrado" });
-        } else if (err instanceof DuplicateKeyError) {
+        } else if (err instanceof DuplicateKeyError || err instanceof MissingKeyError) {
             res.status(err.statusCode).json({ 
                 error: err.name,
                 field: err.field,
@@ -96,7 +88,6 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
     createUser,
-    getUsers,
     getUser,
     updateUser,
     deleteUser

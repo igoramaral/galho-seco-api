@@ -1,17 +1,25 @@
 const Character = require('../models/character');
+const MissingKeyError = require('../errors/missingKeyError');
 
 class CharacterService {
 
     async createCharacter(characterData, userId){
         characterData.user = userId;
-        let char = new Character(characterData);
+        let char = null;
 
         try {
+            char = new Character(characterData);
+
             await char.save().then((result) => {
                 char = result
             })
         } catch (err) {
-            console.error("CharacterService::createCharacter - ", err);
+            if (err instanceof MissingKeyError){
+                console.error(`CharacterService::createCharacter - ${err.name}: ${err.message}`);
+            } else {
+                console.error("CharacterService::createCharacter - ", err);
+            }
+            
             throw(err);
         }
 
@@ -31,6 +39,13 @@ class CharacterService {
         throw new Error("Personagem não encontrado");        
     }
 
+    async getAllCharacters(userId){
+        let chars = await Character.find({user: userId}).select("-system");
+
+        console.log(`CharacterService::getAllCharacters - ${chars.length} characters of user ${userId} were found`);
+        return chars;
+    }
+
     async updateCharacter(charId, userId, characterData){
         try {
             let char = await Character.findOne({ _id: charId, user: userId });
@@ -45,7 +60,12 @@ class CharacterService {
             console.log(`CharacterService::updateCharacter - Character ${charId} updated successfully`);
             return char;
         } catch(err){
-            console.error("CharacterService::updateCharacter - ", err);
+            if(err instanceof MissingKeyError){
+                console.error(`CharacterService::updateCharacter - ${err.name}: ${err.message}`);
+            } else{
+                console.error("CharacterService::updateCharacter - ", err);
+            }
+        
             throw err;
         }
     }

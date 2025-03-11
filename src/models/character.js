@@ -1,4 +1,13 @@
 const mongoose = require('mongoose');
+const MissingKeyError = require('../errors/missingKeyError');
+
+function transformDocument(doc, ret) {
+    ret.id = ret._id;
+    ret.type = "character";  
+    delete ret._id;  
+    delete ret.__v;  
+    return ret;
+}
 
 const abilitySchema = new mongoose.Schema({
     value: { type: Number, default: 10 },
@@ -8,7 +17,8 @@ const abilitySchema = new mongoose.Schema({
         check: { type: String, default: "" },
         save: { type: String, default: "" }
     }
-})
+},
+{ _id: false })
 
 const skillSchema = new mongoose.Schema({
     value: { type: Number, default: 0 },
@@ -17,7 +27,8 @@ const skillSchema = new mongoose.Schema({
         check: { type: String, default: "" },
         passive: { type: String, default: "" }
     }
-})
+},
+{ _id: false })
 
 const bonusSchema = new mongoose.Schema({
     mwak: {
@@ -44,7 +55,8 @@ const bonusSchema = new mongoose.Schema({
     spell: {
         dc: { type: String, default: "" }
     }
-})
+},
+{ _id: false })
 
 const spellSlotSchema = new mongoose.Schema({
     spell1: {
@@ -87,7 +99,8 @@ const spellSlotSchema = new mongoose.Schema({
         value: { type: Number, default: 0 },
         override: { type: Number, default: null }
     }
-})
+},
+{ _id: false })
 
 const attributeSchema = new mongoose.Schema({
     hp: {
@@ -134,7 +147,8 @@ const attributeSchema = new mongoose.Schema({
     inspiration: { type: Boolean, default: false },
     spellcasting: { type: String, default: "" },
     exhaustion: { type: Number, default: 0 }
-})
+},
+{ _id: false })
 
 const detailsSchema = new mongoose.Schema({
     biography: {
@@ -154,7 +168,8 @@ const detailsSchema = new mongoose.Schema({
     xp: {
         value: { type: Number, default: 0 },
     }
-})
+},
+{ _id: false })
 
 const traitsSchema = new mongoose.Schema({
     size: { type: String, default: "med" },
@@ -193,12 +208,12 @@ const traitsSchema = new mongoose.Schema({
         value: [],
         custom: { type: String, default: "" }
     }
-})
+},
+{ _id: false })
 
 const characterSchema = new mongoose.Schema(
     {
         name: { type: String, required: true },
-        type: { type: String, default: "character" },
         img: { type: String, default: "" },
         user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
         items: {
@@ -245,7 +260,29 @@ const characterSchema = new mongoose.Schema(
                 cp: { type: Number, default: 0 }
             }
         }
+    },
+    {
+        toJSON: { virtuals: true, transform: transformDocument },
+        toObject: { virtuals: true, transform: transformDocument }
     }
 )
+
+characterSchema.post("save", function (error, doc, next) {
+    //Missing key Tretment
+    if (error.name === "ValidationError") {
+        const field = Object.keys(error.errors)[0];
+        return next(new MissingFieldError(field, `${field} é um campo obrigatório`));
+    }
+    next(error);
+  });
+
+  characterSchema.post("validate", function (error, doc, next) {
+    if (error.name === "ValidationError") {
+      const field = Object.keys(error.errors)[0];
+      return next(new MissingKeyError(field, `${field} é um campo obrigatório`));
+    }
+  
+    next(error);
+});
 
 module.exports = mongoose.model('Character', characterSchema);

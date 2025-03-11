@@ -3,6 +3,7 @@ const User =  require('../../models/user');
 const Character = require('../../models/character');
 const mockingoose = require('mockingoose');
 const DuplicateKeyError = require('../../errors/duplicatedKeyError');
+const MissingKeyError = require('../../errors/missingKeyError');
 
 beforeAll(() => {
     jest.spyOn(console, "log").mockImplementation(() => {});
@@ -23,7 +24,7 @@ describe("userService.createUser", () => {
 
     it ('should create user if user data is correct', async () => {
         const newUser = { nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01"};
-        const mockCreatedUser = { _id: 1, ...newUser };
+        const mockCreatedUser = { id: 1, ...newUser };
 
         mockingoose(User).toReturn(mockCreatedUser, 'save');
 
@@ -34,12 +35,13 @@ describe("userService.createUser", () => {
         expect(createdUser.email).toBe(newUser.email);
     })
 
-    it ('should not create user if required data is missing', async () => {
+    it ('should raise MissingKeyError if required data is missing', async () => {
         const newUser = { nome: "João das Neves", password: "123", dataNascimento: "2000-01-01"};
 
-        mockingoose(User).toReturn(new Error("Path `email` is required."), 'save');
+        const missingKeyError = new MissingKeyError("email", "email é um campo obrigatório")
+        mockingoose(User).toReturn(missingKeyError, 'save');
 
-        await expect(userService.createUser(newUser)).rejects.toThrow("Path `email` is required.");
+        await expect(userService.createUser(newUser)).rejects.toThrow("email é um campo obrigatório");
     })
 
     it ('should raise DuplicateKeyError if email is already used', async () => {
@@ -52,6 +54,16 @@ describe("userService.createUser", () => {
         await expect(userService.createUser(newUser)).rejects.toThrow(DuplicateKeyError);
         await expect(userService.createUser(newUser)).rejects.toThrow("email já está em uso");
     })
+
+    it ('should throw on internal server error', async () => {
+        const newUser = { nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01"};
+
+        const duplicateKeyError = new Error("erro inesperado");
+
+        mockingoose(User).toReturn(duplicateKeyError, 'save');
+
+        await expect(userService.createUser(newUser)).rejects.toThrow("erro inesperado");
+    })
 })
 
 describe("userService.updateUser", () => {
@@ -62,8 +74,8 @@ describe("userService.updateUser", () => {
     it("should update a user if data is provided correctly", async () => {
         const userId = "65a1234567890abcde123456";
         const updateData = { nome: "Biruleibe", email: "biruleibe@email.com"};
-        const userBefore = { _id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
-        const savedUser = { _id: userId, nome: "Biruleibe", email: "biruleibe@email.com", password: "123", dataNascimento: "2000-01-01" };
+        const userBefore = { id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
+        const savedUser = { id: userId, nome: "Biruleibe", email: "biruleibe@email.com", password: "123", dataNascimento: "2000-01-01" };
 
         mockingoose(User).toReturn(userBefore, 'findOne');
         mockingoose(User).toReturn(savedUser, 'save');
@@ -78,7 +90,7 @@ describe("userService.updateUser", () => {
     it("should raise DuplicateKeyError if trying to update to an used email", async () => {
         const userId = "65a1234567890abcde123456";
         const updateData = { nome: "Biruleibe", email: "biruleibe@email.com"};
-        const userBefore = { _id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
+        const userBefore = { id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
         const duplicateKeyError = new DuplicateKeyError("email", "email já está em uso");
 
         mockingoose(User).toReturn(userBefore, 'findOne');
@@ -105,7 +117,7 @@ describe ("userService.findUser", () => {
 
     it("should find user if correct id is provided", async () => {
         const userId = "65a1234567890abcde123456";
-        const foundUser = { _id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
+        const foundUser = { id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
 
         mockingoose(User).toReturn(foundUser, 'findOne');
 
@@ -129,11 +141,25 @@ describe ("userService.deleteUser", () => {
         mockingoose.resetAll();
     })
 
-    it("should delete user if correct id is provided", async () => {
+    it("should delete user if correct id is provided and no character was deleted", async () => {
         const userId = "65a1234567890abcde123456";
-        const mockUser = { _id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
+        const mockUser = { id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
 
         mockingoose(Character).toReturn({ acknowledge: true, deletedCount: 0 }, 'deleteMany')
+        mockingoose(User).toReturn(mockUser, 'findOneAndDelete');
+
+        const user = await userService.deleteUser(userId);
+
+        expect(user).toBeDefined();
+        expect(user.nome).toEqual(mockUser.nome);
+        expect(user.email).toEqual(mockUser.email);
+    })
+
+    it("should delete user if correct id is provided and characters were deleted", async () => {
+        const userId = "65a1234567890abcde123456";
+        const mockUser = { id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" };
+
+        mockingoose(Character).toReturn({ acknowledge: true, deletedCount: 3 }, 'deleteMany')
         mockingoose(User).toReturn(mockUser, 'findOneAndDelete');
 
         const user = await userService.deleteUser(userId);
