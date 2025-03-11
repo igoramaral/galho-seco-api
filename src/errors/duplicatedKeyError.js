@@ -3,7 +3,7 @@ class DuplicateKeyError extends Error {
       super(message);
       this.name = "DuplicateKeyError";
       this.field = field;
-      this.statusCode = 400; 
+      this.statusCode = 422; 
     }
   }
   

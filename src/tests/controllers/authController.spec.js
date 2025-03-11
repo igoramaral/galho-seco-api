@@ -3,6 +3,19 @@ const authService = require('../../services/authService');
 
 jest.mock('../../services/authService');
 
+// removing logging from tests for better reading
+beforeAll(() => {
+    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+});
+  
+afterAll(() => {
+    console.log.mockRestore();
+    console.error.mockRestore();
+    console.warn.mockRestore();
+});
+
 describe('authController.login', () => {
     let req, res;
 

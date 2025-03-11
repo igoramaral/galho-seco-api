@@ -1,10 +1,19 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const DuplicateKeyError = require('../errors/duplicatedKeyError');
+const MissingFieldError = require('../errors/missingKeyError');
 const SALT_WORK_FACTOR = 10;
 
-// Schema
+function transformDocument(doc, ret) {
+    ret.id = ret._id;  
+    delete ret._id;  
+    delete ret.__v;  
+    delete ret.verificationToken;
+    delete ret.isVerified;
+    return ret;
+}
 
+// Schema
 const UserSchema = new mongoose.Schema(
     {
         nome: {
@@ -31,6 +40,10 @@ const UserSchema = new mongoose.Schema(
         verificationToken: {
             type: String,
         }
+    },
+    {
+        toJSON: { virtuals: true, transform: transformDocument },
+        toObject: { virtuals: true, transform: transformDocument }
     }
 )
 
@@ -62,10 +75,24 @@ UserSchema.methods.checkPassword = function(candidatePassword) {
 UserSchema.post("save", function (error, doc, next) {
     //Duplicated Key Treatment
     if (error.name === "MongoServerError" && error.code === 11000) {
-      const field = Object.keys(error.keyValue)[0]; // Obtém o campo duplicado
-      return next(new DuplicateKeyError(field, `${field} já está em uso`));
+        const field = Object.keys(error.keyValue)[0];
+        return next(new DuplicateKeyError(field, `${field} já está em uso`));
+    }
+
+    //Missing key Tretment
+    if (error.name === "ValidationError") {
+        const field = Object.keys(error.errors)[0];
+        return next(new MissingFieldError(field, `${field} é um campo obrigatório`));
     }
     next(error);
   });
 
+UserSchema.post("validate", function (error, doc, next) {
+    if (error.name === "ValidationError") {
+      const field = Object.keys(error.errors)[0];
+      return next(new MissingFieldError(field, `${field} é um campo obrigatório`));
+    }
+  
+    next(error);
+});
 module.exports = mongoose.model('User', UserSchema);

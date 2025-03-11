@@ -26,8 +26,6 @@ class AuthService {
         );
 
         const userObject = user.toObject();
-        userObject.id = userObject._id;
-        delete userObject._id;
         delete userObject.password;
 
         const response = {
