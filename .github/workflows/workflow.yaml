@@ -9,7 +9,6 @@ on:
     pull_request:
         branches:
             - main  
-        
 
 jobs:
     continuous-integration:
@@ -58,9 +57,9 @@ jobs:
                 docker build --secret id=env,src=.env -t galho-seco-api .
 
             - name: Save Docker image as artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
-                  name: docker-image
+                  name: docker-image-${{ github.sha }}
                   path: /tmp/galho-seco-api.tar
                   retention-days: 1
     
@@ -87,9 +86,9 @@ jobs:
                 password: ${{ secrets.DOCKER_PASSWORD }}
 
             - name: Load Docker image artifact
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
-                  name: docker-image
+                  name: docker-image-${{ github.sha }}
                   path: /tmp
             
             - name: Load Docker image
