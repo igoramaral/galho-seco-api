@@ -4,6 +4,19 @@ const DuplicateKeyError = require('../../errors/duplicatedKeyError');
 
 jest.mock('../../services/userService');
 
+// removing logging from tests for better reading
+beforeAll(() => {
+    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+});
+  
+afterAll(() => {
+    console.log.mockRestore();
+    console.error.mockRestore();
+    console.warn.mockRestore();
+});
+
 describe("userController.createUser", ()=>{
 
     let req, res;

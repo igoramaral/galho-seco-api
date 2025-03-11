@@ -1,4 +1,5 @@
 const DuplicateKeyError = require('../errors/duplicatedKeyError');
+const MissingKeyError = require('../errors/missingKeyError');
 const User = require('../models/user');
 const Character = require('../models/character');
 const crypto = require('crypto');
@@ -10,16 +11,17 @@ class UserService {
         let verificationToken = crypto.randomBytes(32).toString('hex');
         userData.verificationToken = verificationToken;
 
-        let user = new User(userData);
-
+        let user = null
         try{
+            user = new User(userData);
+        
             await user.save()
                 .then((result) => {
                     user = result.toObject();
                     delete user.password;
                 })                
         } catch (err){
-            if (err instanceof DuplicateKeyError){
+            if (err instanceof DuplicateKeyError || err instanceof MissingKeyError){
                 console.error("UserService::createUser - ", err.message)
             } else {
                 console.error("UserService::createUser - ", err)
@@ -28,12 +30,8 @@ class UserService {
             throw(err);
         }
 
-        console.log(`UserService::createUser - User ${user._id} - ${user.email} created successfully`);
+        console.log(`UserService::createUser - User ${user.id} - ${user.email} created successfully`);
         return user;
-    }
-
-    async getAllUsers(){
-        return User.find()
     }
 
     async findUser(userId){
@@ -64,7 +62,7 @@ class UserService {
             delete userObject.password;
             return userObject;
         } catch(err){
-            if (err instanceof DuplicateKeyError){
+            if (err instanceof DuplicateKeyError || err instanceof MissingKeyError){
                 console.error(`UserService::updateUser - ${err.name}: ${err.message}`);
             } else {
                 console.error("UserService::updateUser - ", err)

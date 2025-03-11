@@ -2,6 +2,7 @@ const CharacterService = require('../../services/characterService');
 const Character = require('../../models/character');
 const mockingoose = require('mockingoose');
 const characterService = require('../../services/characterService');
+const MissingKeyError = require('../../errors/missingKeyError');
 const { ObjectId } = require('mongodb');
 
 // removing logging from tests for better reading
@@ -45,6 +46,15 @@ describe('characterService::createCharacter', ()=>{
         
         await expect(characterService.createCharacter(charData, userId)).rejects.toThrow();
     })
+
+    it('should raise MissingKeyError if name not provided', async () => {
+        let userId = "65d5a7f2e7b3a3c4f4b9d5e1";
+        let charData = { };
+
+        mockingoose(Character).toReturn(new MissingKeyError("name", "name é um campo obrigatório"), 'validate');
+        
+        await expect(characterService.createCharacter(charData, userId)).rejects.toThrow();
+    })
 })
 
 describe('characterService::findCharacter', () => {
@@ -74,6 +84,32 @@ describe('characterService::findCharacter', () => {
         mockingoose(Character).toReturn(null, 'findOne');
 
         await expect(characterService.findCharacter(charId, userId)).rejects.toThrow('Personagem não encontrado');
+    })
+})
+
+describe('characterService::getAllCharacters', () => {
+    beforeEach(() => {
+        mockingoose.resetAll();
+    })
+
+    it('should return list of found characters', async () => {
+        let userId = "65d5a7f2e7b3a3c4f4b9d5e1";
+        let charlist = [{ name: "Bruenor", user: userId },{ name: "Drizzt", user: userId }]
+
+        mockingoose(Character).toReturn(charlist, 'find');
+
+        const chars = await characterService.getAllCharacters(userId);
+
+        expect(chars).toBeDefined();
+        expect(chars[0].user.toString()).toEqual(userId);
+    })
+
+    it('should raise error in internal server error', async () => {
+        let userId = "65d5a7f2e7b3a3c4f4b9d5e1";
+
+        mockingoose(Character).toReturn(new Error("Erro inesperado"));
+
+        await expect(characterService.getAllCharacters(userId)).rejects.toThrow('Erro inesperado');
     })
 })
 
@@ -146,6 +182,18 @@ describe ("characterService.updateCharacter", ()=>{
         mockingoose(Character).toReturn(returnedChar, 'findOne');
         mockingoose(Character).toReturn(new Error(), 'save');
 
+        await expect(characterService.updateCharacter(charId, userId, charData)).rejects.toThrow();
+    })
+
+    it('should raise MissingKeyError if name nullified', async () => {
+        let userId = "65d5a7f2e7b3a3c4f4b9d5e1";
+        let charId = '65a1234567890abcde123456';
+        let returnedChar = { _id: charId, user: userId, name: "Bruenor", type: "character", system: {}, items: [] }
+        let charData = { name: null };
+
+        mockingoose(Character).toReturn(returnedChar, 'findOne');
+        mockingoose(Character).toReturn(new MissingKeyError("name", "name é um campo obrigatório"), 'validate');
+        
         await expect(characterService.updateCharacter(charId, userId, charData)).rejects.toThrow();
     })
 })

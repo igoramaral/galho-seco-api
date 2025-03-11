@@ -1,4 +1,5 @@
 const characterService = require('../services/characterService');
+const MissingKeyError = require('../errors/missingKeyError');
 
 const createCharacter = async (req, res) => {
     const userId = req.userId;
@@ -8,7 +9,16 @@ const createCharacter = async (req, res) => {
 
         res.status(201).json(char);
     } catch(err){
-        res.status(500).json({ error: "Internal Server Error" })
+        if (err instanceof MissingKeyError){
+            res.status(err.statusCode).json({ 
+                error: err.name,
+                field: err.field,
+                message: err.message
+             });
+        } else {
+            res.status(500).json({ error: "Internal Server Error" })
+        }
+        
     }
 }
 
@@ -28,6 +38,18 @@ const findCharacter = async (req, res) => {
     }
 }
 
+const getAllCharacters = async (req, res) => {
+    const userId = req.userId;
+
+    try {
+        let chars = await characterService.getAllCharacters(userId);
+
+        res.status(200).json(chars);
+    } catch(err) {
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 const updateCharacter = async (req, res) => {
     const userId = req.userId;
     const charId = req.params.id;
@@ -40,8 +62,14 @@ const updateCharacter = async (req, res) => {
     } catch(err) {
         if (err.message == "Personagem não encontrado"){
             return res.status(404).json({ error: "Personagem não encontrado" });
+        } else if (err instanceof MissingKeyError){
+            res.status(err.statusCode).json({ 
+                error: err.name,
+                field: err.field,
+                message: err.message
+             });
         } else {
-            return res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ error: "Internal Server Error" })
         }
     }
 }
@@ -66,6 +94,7 @@ const deleteCharacter = async (req, res) => {
 module.exports = {
     createCharacter,
     findCharacter,
+    getAllCharacters,
     updateCharacter,
     deleteCharacter
 }
