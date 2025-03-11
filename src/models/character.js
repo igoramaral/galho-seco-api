@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+function transformDocument(doc, ret) {
+    ret.id = ret._id;  
+    delete ret._id;  
+    delete ret.__v;  
+    return ret;
+}
+
 const abilitySchema = new mongoose.Schema({
     value: { type: Number, default: 10 },
     proficient: { type: Number, default: 0 },
@@ -8,7 +15,8 @@ const abilitySchema = new mongoose.Schema({
         check: { type: String, default: "" },
         save: { type: String, default: "" }
     }
-})
+},
+{ _id: false })
 
 const skillSchema = new mongoose.Schema({
     value: { type: Number, default: 0 },
@@ -17,7 +25,8 @@ const skillSchema = new mongoose.Schema({
         check: { type: String, default: "" },
         passive: { type: String, default: "" }
     }
-})
+},
+{ _id: false })
 
 const bonusSchema = new mongoose.Schema({
     mwak: {
@@ -44,7 +53,8 @@ const bonusSchema = new mongoose.Schema({
     spell: {
         dc: { type: String, default: "" }
     }
-})
+},
+{ _id: false })
 
 const spellSlotSchema = new mongoose.Schema({
     spell1: {
@@ -87,7 +97,8 @@ const spellSlotSchema = new mongoose.Schema({
         value: { type: Number, default: 0 },
         override: { type: Number, default: null }
     }
-})
+},
+{ _id: false })
 
 const attributeSchema = new mongoose.Schema({
     hp: {
@@ -134,7 +145,8 @@ const attributeSchema = new mongoose.Schema({
     inspiration: { type: Boolean, default: false },
     spellcasting: { type: String, default: "" },
     exhaustion: { type: Number, default: 0 }
-})
+},
+{ _id: false })
 
 const detailsSchema = new mongoose.Schema({
     biography: {
@@ -154,7 +166,8 @@ const detailsSchema = new mongoose.Schema({
     xp: {
         value: { type: Number, default: 0 },
     }
-})
+},
+{ _id: false })
 
 const traitsSchema = new mongoose.Schema({
     size: { type: String, default: "med" },
@@ -193,7 +206,8 @@ const traitsSchema = new mongoose.Schema({
         value: [],
         custom: { type: String, default: "" }
     }
-})
+},
+{ _id: false })
 
 const characterSchema = new mongoose.Schema(
     {
@@ -245,6 +259,10 @@ const characterSchema = new mongoose.Schema(
                 cp: { type: Number, default: 0 }
             }
         }
+    },
+    {
+        toJSON: { virtuals: true, transform: transformDocument },
+        toObject: { virtuals: true, transform: transformDocument }
     }
 )
 
