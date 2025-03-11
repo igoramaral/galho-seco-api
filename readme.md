@@ -35,27 +35,85 @@ One of the main goals of this project is to integrate the app with [Foundry VTT]
 
 ## Installation
 
-Clone the repo:
+### Option 1: Running the Project with the Source Code
+
+If you want to run the project with the source code, follow these steps:
+
+#### 1) Clone the repo:
 ```sh
 git clone https://github.com/igoramaral/galho_seco.git
 cd galho_seco
 ```
 
-Install dependecies:
+#### 2) Install dependecies:
 ```sh
 npm install
 ```
 
-Run the project:
+#### 3) Set up MongoDB for testing:
+
+Ensure you have a MongoDB instance running for the application. You can use a local MongoDB server or a cloud service like MongoDB Atlas.
+Create a database to be used for testing purposes.
+
+#### 4) Create a .env file in the root directory of the project with the following variables:
+```
+PORT=<THE PORT YOU WANT TO USE>
+dbURL=<URL FOR CONNECTING TO THE MONGODB DATABASE>
+JWT_SECRET=<ANY STRING FOR CREATING TOKENS>
+```
+
+#### 5) Run the project:
 ```sh
 npm start
 ```
 
+### Option 2: Runing the project with Docker
+
+If you prefer to run the project via Docker, follow these steps:
+
+#### 1) Pull the Docker image from Docker Hub:
+
+```sh
+docker pull igormaram/galho-seco-api
+```
+
+#### 2) Set up MongoDB for testing:
+
+Ensure you have a MongoDB instance running for the application. You can use a local MongoDB server or a cloud service like MongoDB Atlas.
+Create a database to be used for testing purposes.
+
+#### 3) Create a .env file in the root directory of the project with the following variables:
+```
+PORT=<THE PORT YOU WANT TO USE>
+dbURL=<URL FOR CONNECTING TO THE MONGODB DATABASE>
+JWT_SECRET=<ANY STRING FOR CREATING TOKENS>
+```
+#### 4) Run the docker container:
+```sh
+docker run -p 3000:3000 --env-file .env igoramaral/galho-seco-api
+```
+
 ## Usage
+
+The API provides several endpoints for managing users and characters.  
+All available routes, request formats, and responses are documented using Swagger.  
+
+To access the API documentation, start the project and navigate to:  
+
+📌 **[Swagger UI - API Docs](http://localhost:3000/api/docs)**  
+
+This page provides an interactive interface to explore and test the API endpoints.
 
 ## Running Tests
 
+to run unit tests, you can run:
+```sh
+npm test
+```
+
 ## License
+
+Licensed under ISC license. 
 
 ## Author
 
