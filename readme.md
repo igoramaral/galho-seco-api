@@ -77,20 +77,9 @@ If you prefer to run the project via Docker, follow these steps:
 docker pull igormaram/galho-seco-api
 ```
 
-#### 2) Set up MongoDB for testing:
-
-Ensure you have a MongoDB instance running for the application. You can use a local MongoDB server or a cloud service like MongoDB Atlas.
-Create a database to be used for testing purposes.
-
-#### 3) Create a .env file in the root directory of the project with the following variables:
-```
-PORT=<THE PORT YOU WANT TO USE>
-dbURL=<URL FOR CONNECTING TO THE MONGODB DATABASE>
-JWT_SECRET=<ANY STRING FOR CREATING TOKENS>
-```
-#### 4) Run the docker container:
+#### 2) Run the docker container:
 ```sh
-docker run -p 3000:3000 --env-file .env igoramaral/galho-seco-api
+docker run -p 3000:3000 igoramaral/galho-seco-api
 ```
 
 ## Usage
