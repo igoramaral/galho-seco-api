@@ -15,7 +15,7 @@ describe('AuthService', () => {
     describe('authService.login', () => {
         it('should return token and user data when providing valid credentials', async () => {
             const mockUser = new User({
-                _id: '64feba7fbc13adf42caa92a1',
+                id: '64feba7fbc13adf42caa92a1',
                 email: 'test@example.com',
                 password: 'hashedpassword'
             });
@@ -23,7 +23,7 @@ describe('AuthService', () => {
             mockUser.checkPassword = jest.fn().mockResolvedValue(true);
 
             mockUser.toObject = jest.fn().mockReturnValue({
-                _id: '64feba7fbc13adf42caa92a1',
+                id: '64feba7fbc13adf42caa92a1',
                 email: 'test@example.com',
                 password: undefined // Para garantir que a senha não seja exposta
             });

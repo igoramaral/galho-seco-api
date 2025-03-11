@@ -3,8 +3,16 @@ const bcrypt = require('bcrypt');
 const DuplicateKeyError = require('../errors/duplicatedKeyError');
 const SALT_WORK_FACTOR = 10;
 
-// Schema
+function transformDocument(doc, ret) {
+    ret.id = ret._id;  
+    delete ret._id;  
+    delete ret.__v;  
+    delete ret.verificationToken;
+    delete ret.isVerified;
+    return ret;
+}
 
+// Schema
 const UserSchema = new mongoose.Schema(
     {
         nome: {
@@ -31,6 +39,10 @@ const UserSchema = new mongoose.Schema(
         verificationToken: {
             type: String,
         }
+    },
+    {
+        toJSON: { virtuals: true, transform: transformDocument },
+        toObject: { virtuals: true, transform: transformDocument }
     }
 )
 

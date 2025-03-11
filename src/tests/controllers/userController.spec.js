@@ -33,12 +33,12 @@ describe("userController.createUser", ()=>{
         expect(res.json).toHaveBeenCalledWith(mockUser);
     })
 
-    it("should return 400 when trying to create user with an used email", async () => {
+    it("should return 422 when trying to create user with an used email", async () => {
         userService.createUser.mockRejectedValue(new DuplicateKeyError("email", "email já está em uso"));
 
         await userController.createUser(req, res);
 
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(422);
         expect(res.json).toHaveBeenCalledWith({ 
             error: "DuplicateKeyError",
             field: "email",
@@ -141,13 +141,13 @@ describe("userController.updateUser", ()=>{
         expect(res.json).toHaveBeenCalledWith({ error: "Usuário não encontrado" });
     })
 
-    it("should return 400 when trying to update an user with an used email", async () => {
+    it("should return 422 when trying to update an user with an used email", async () => {
         req.userId = "65a1234567890abcde123456";
         userService.updateUser.mockRejectedValue(new DuplicateKeyError("email", "email já está em uso"));
 
         await userController.updateUser(req, res);
 
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.status).toHaveBeenCalledWith(422);
         expect(res.json).toHaveBeenCalledWith({ 
             error: "DuplicateKeyError",
             field: "email",
@@ -219,7 +219,7 @@ describe("userController.deleteUser", ()=>{
         expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
     })
 
-    it("should return 403 when trying to update other user", async () => {
+    it("should return 403 when trying to delete other user", async () => {
         req.userId = "abobrinha";
         userService.updateUser.mockRejectedValue(new Error());
 

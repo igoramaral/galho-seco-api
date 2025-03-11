@@ -15,7 +15,8 @@ class UserService {
         try{
             await user.save()
                 .then((result) => {
-                    user = result;
+                    user = result.toObject();
+                    delete user.password;
                 })                
         } catch (err){
             if (err instanceof DuplicateKeyError){
@@ -58,7 +59,10 @@ class UserService {
             user = await user.save();
 
             console.log(`UserService::updateUser - User ${userId} updated successfully`);
-            return user;
+
+            const userObject = user.toObject()
+            delete userObject.password;
+            return userObject;
         } catch(err){
             if (err instanceof DuplicateKeyError){
                 console.error(`UserService::updateUser - ${err.name}: ${err.message}`);
