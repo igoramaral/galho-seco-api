@@ -8,7 +8,9 @@ on:
             - 'v*' 
     pull_request:
         branches:
-            - main  
+            - main
+            - develop
+    workflow_dispatch: 
 
 jobs:
     continuous-integration:
@@ -30,83 +32,61 @@ jobs:
                 npm test -- --coverage
               env:
                 CI: false
+            - name: Save source code as artifact
+              if: github.base_ref == 'main' || github.base_ref == 'develop' || startsWith(github.ref, 'refs/tags/v')
+              uses: actions/upload-artifact@v4
+              with:
+                name: source-code-${{ github.sha }}
+                path: .
+                retention-days: 1
 
     build-docker-image:
         runs-on: ubuntu-latest
         needs: continuous-integration
+        if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop')
 
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+            - name: Download source code artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: source-code-${{ github.sha }}
+                path: .
 
             - name: Create .env file
               run: |
                 echo "${{ secrets.ENV_FILE }}"  > .env
 
-            - name: Setup Docker Buildx
-              uses: docker/setup-buildx-action@v2
-
-            - name: Login to docker hub
-              uses: docker/login-action@v2
-              with:
-                username: ${{ secrets.DOCKER_USERNAME }}
-                password: ${{ secrets.DOCKER_PASSWORD }}
-            
-            - name: Build Docker image
+            - name: Build Docker image for the default platform
               run: |
-                docker build --secret id=env,src=.env -t galho-seco-api .
-
-            - name: Save Docker image as .tar file
-              run: |
-                docker save galho-seco-api -o /tmp/galho-seco-api.tar
-
-            - name: Save Docker image as artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: docker-image-${{ github.sha }}
-                  path: /tmp/galho-seco-api.tar
-                  retention-days: 1
+                docker build \
+                  --secret id=env,src=.env \
+                  -t galho-seco-api:${GITHUB_SHA} \
+                  -t galho-seco-api:latest .
     
-    push-docker-image:
+    build-multiplataform-image-and-push:
         runs-on: ubuntu-latest
         needs: build-docker-image
         if: startsWith(github.ref, 'refs/tags/v')
         
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-
+            - name: Download source code artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: source-code-${{ github.sha }}
+                path: .
+            
             - name: Create .env file
               run: |
-                echo "${{ secrets.ENV_FILE }}"  > .env
+                echo "${{ secrets.ENV_FILE }}" > .env
 
             - name: Setup Docker Buildx
               uses: docker/setup-buildx-action@v2
-
-            - name: Login to docker hub
-              uses: docker/login-action@v2
-              with:
-                username: ${{ secrets.DOCKER_USERNAME }}
-                password: ${{ secrets.DOCKER_PASSWORD }}
-
-            - name: Download Docker image artifact
-              uses: actions/download-artifact@v4
-              with:
-                  name: docker-image-${{ github.sha }}
-                  path: /tmp
-            
-            - name: Load Docker image
+      
+            - name: Build and push Docker image for multiple architectures
               run: |
-                docker load -i /tmp/galho-seco-api.tar
-            
-            - name: Tag Docker image
-              run: |
-                TAG_NAME=${GITHUB_REF#refs/tags/}
-                docker tag galho-seco-api igoramaral/galho-seco-api:$TAG_NAME
-                docker tag galho-seco-api igoramaral/galho-seco-api:latest
-
-            - name: Push Docker image
-              run: |
-                TAG_NAME=${GITHUB_REF#refs/tags/}
-                docker push igoramaral/galho-seco-api:$TAG_NAME
-                docker push igoramaral/galho-seco-api:latest
+                docker buildx build \
+                  --platform linux/amd64,linux/arm64 \
+                  --secret id=env,src=.env \
+                  -t igoramaral/galho-seco-api:${GITHUB_SHA} \
+                  -t igoramaral/galho-seco-api:latest \
+                  --push .
