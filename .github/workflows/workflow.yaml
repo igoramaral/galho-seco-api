@@ -24,7 +24,7 @@ jobs:
                 node-version: 20.x
                 cache: 'npm'
 
-            - name: run install and tests
+            - name: Run install and tests
               run: |
                 npm ci
                 npm test -- --coverage
@@ -39,34 +39,13 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Create .env file
-              run: |
-                echo "${{ secrets.ENV_FILE }}"  > .env
-
             - name: Setup Docker Buildx
               uses: docker/setup-buildx-action@v2
-
-            - name: Login to docker hub
-              uses: docker/login-action@v2
-              with:
-                username: ${{ secrets.DOCKER_USERNAME }}
-                password: ${{ secrets.DOCKER_PASSWORD }}
             
-            - name: Build Docker image
+            - name: Build Docker image for ARM64
               run: |
-                docker build --secret id=env,src=.env -t galho-seco-api .
+                docker buildx build --platform linux/arm64 -t galho-seco-api .
 
-            - name: Save Docker image as .tar file
-              run: |
-                docker save galho-seco-api -o /tmp/galho-seco-api.tar
-
-            - name: Save Docker image as artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: docker-image-${{ github.sha }}
-                  path: /tmp/galho-seco-api.tar
-                  retention-days: 1
-    
     push-docker-image:
         runs-on: ubuntu-latest
         needs: build-docker-image
@@ -76,37 +55,19 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
-            - name: Create .env file
-              run: |
-                echo "${{ secrets.ENV_FILE }}"  > .env
-
             - name: Setup Docker Buildx
               uses: docker/setup-buildx-action@v2
 
-            - name: Login to docker hub
+            - name: Login to Docker Hub
               uses: docker/login-action@v2
               with:
                 username: ${{ secrets.DOCKER_USERNAME }}
                 password: ${{ secrets.DOCKER_PASSWORD }}
 
-            - name: Download Docker image artifact
-              uses: actions/download-artifact@v4
-              with:
-                  name: docker-image-${{ github.sha }}
-                  path: /tmp
-            
-            - name: Load Docker image
-              run: |
-                docker load -i /tmp/galho-seco-api.tar
-            
-            - name: Tag Docker image
+            - name: Build and push Docker image for ARM64
               run: |
                 TAG_NAME=${GITHUB_REF#refs/tags/}
-                docker tag galho-seco-api igoramaral/galho-seco-api:$TAG_NAME
-                docker tag galho-seco-api igoramaral/galho-seco-api:latest
-
-            - name: Push Docker image
-              run: |
-                TAG_NAME=${GITHUB_REF#refs/tags/}
-                docker push igoramaral/galho-seco-api:$TAG_NAME
-                docker push igoramaral/galho-seco-api:latest
+                docker buildx build --platform linux/arm64 \
+                  -t igoramaral/galho-seco-api:$TAG_NAME \
+                  -t igoramaral/galho-seco-api:latest \
+                  --push .

@@ -1,12 +1,10 @@
-<a id="readme-top"></a>
-
-# :game_die: Galho Seco - A D&D Character Sheet Manager
+# :game_die: Galho Seco API - A D&D Character Sheet Manager API
 
 ![GitHub top language](https://img.shields.io/github/languages/top/igoramaral/galho_seco)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/igoramaral/galho_seco/workflow.yaml)
 [![Author](https://img.shields.io/badge/Author-Igor%20Amaral-blue)](https://github.com/igoramaral)
 
-Galho Seco is a D&D character sheet manager that runs on mobile devices and allows user to integrate rolls to Foundry VTT.
+Galho Seco API a D&D character sheet manager API that provides the backend to [Galho Seco App](https://github.com/igoramaral/galho-seco-app).
 This project is part of the final project for the Computer and Information Engineering degree at Federal University of Rio de Janeiro (UFRJ)
 
 
@@ -65,32 +63,6 @@ JWT_SECRET=<ANY STRING FOR CREATING TOKENS>
 #### 5) Run the project:
 ```sh
 npm start
-```
-
-### Option 2: Runing the project with Docker
-
-If you prefer to run the project via Docker, follow these steps:
-
-#### 1) Pull the Docker image from Docker Hub:
-
-```sh
-docker pull igormaram/galho-seco-api
-```
-
-#### 2) Set up MongoDB for testing:
-
-Ensure you have a MongoDB instance running for the application. You can use a local MongoDB server or a cloud service like MongoDB Atlas.
-Create a database to be used for testing purposes.
-
-#### 3) Create a .env file in the root directory of the project with the following variables:
-```
-PORT=<THE PORT YOU WANT TO USE>
-dbURL=<URL FOR CONNECTING TO THE MONGODB DATABASE>
-JWT_SECRET=<ANY STRING FOR CREATING TOKENS>
-```
-#### 4) Run the docker container:
-```sh
-docker run -p 3000:3000 --env-file .env igoramaral/galho-seco-api
 ```
 
 ## Usage
