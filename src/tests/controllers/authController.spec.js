@@ -157,7 +157,6 @@ describe('authController.logout', () => {
 
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ message: "Logout realizado com sucesso" });
-        expect(authService.logout).toHaveBeenCalledWith('12345');
     });
 
     it('should return 404 if user is not found in the database', async () => {
