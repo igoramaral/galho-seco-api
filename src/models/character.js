@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const MissingKeyError = require('../errors/missingKeyError');
+const User = require('./user');
 
 function transformDocument(doc, ret) {
     ret.id = ret._id;
@@ -286,13 +287,13 @@ characterSchema.post("validate", function (error, doc, next) {
 });
 
 characterSchema.post("save", async function (doc) {
-    await mongoose.model('User').findByIdAndUpdate(doc.user, {
+    await User.findByIdAndUpdate(doc.user, {
         $inc: { 'stats.characters': 1 }
     });
 });
 
 characterSchema.post("findOneAndDelete", async function (doc) {
-    await mongoose.model('User').findByIdAndUpdate(doc.user, {
+    await User.findByIdAndUpdate(doc.user, {
         $inc: { 'stats.characters': -1 }
     });
 });
