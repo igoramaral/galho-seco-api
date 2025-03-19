@@ -29,7 +29,7 @@ describe('authController.login', () => {
     });
 
     it('should return 200 and a valid token if valid credentials are provided', async () => {
-        const mockResponse = { token: 'mocked-jwt-token', refreshToken: 'valid-refresh-token', user: { id: '12345', email: 'test@example.com' } };
+        const mockResponse = { token: 'mocked-jwt-token', user: { id: '12345', email: 'test@example.com' } };
 
         authService.login.mockResolvedValue(mockResponse);
 
