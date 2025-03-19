@@ -80,3 +80,174 @@ describe('authController.login', () => {
         expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
     });
 });
+
+describe('authController.refreshAccessToken', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { body: {} };
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
+    });
+
+    it('should return 200 and a valid token and refresh token if valid access token is provided', async () => {
+        const mockResponse = { token: 'mocked-jwt-token', refreshToken: 'valid-refresh-token' };
+
+        authService.refreshAccessToken.mockResolvedValue(mockResponse);
+
+        req.body = { refreshToken: 'refresh-token' };
+        await authController.refreshAccessToken(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(mockResponse);
+        expect(authService.refreshAccessToken).toHaveBeenCalledWith('refresh-token');
+    });
+
+    it('should return 400 if refresh token is not provided', async () => {
+        req.body = { };
+        await authController.refreshAccessToken(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Refresh Token é obrigatório' });
+        expect(authService.refreshAccessToken).not.toHaveBeenCalled();
+    });
+
+    it('shoudl return 401 if Refresh Token expired', async () => {
+        authService.refreshAccessToken.mockRejectedValue(new Error('Refresh Token expirado ou inválido'));
+
+        req.body = { refreshToken: 'refresh-token' };
+        await authController.refreshAccessToken(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Refresh Token expirado ou inválido' });
+    });
+
+    it('should return 500 in case of internal server error', async () => {
+        authService.refreshAccessToken.mockRejectedValue(new Error('Erro inesperado'));
+
+        req.body = { refreshToken: 'refresh-token' };
+        await authController.refreshAccessToken(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
+    });
+});
+
+describe('authController.logout', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { user: { userId: '12345' } };  // Mocking the userId from the request object (usually populated by middleware)
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
+    });
+
+    it('should return 200 and a success message when logout is successful', async () => {
+        const mockResponse = { message: "Logout realizado com sucesso" };
+
+        authService.logout.mockResolvedValue(mockResponse);
+
+        await authController.logout(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ message: "Logout realizado com sucesso" });
+    });
+
+    it('should return 404 if user is not found in the database', async () => {
+        authService.logout.mockRejectedValue(new Error('Usuário não encontrado'));
+
+        await authController.logout(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Usuário não encontrado' });
+    });
+
+    it('should return 500 if there is an internal server error', async () => {
+        authService.logout.mockRejectedValue(new Error('Erro inesperado'));
+
+        await authController.logout(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+    });
+});
+
+describe('authController.changePassword', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { userId: '12345', body: {} };  // Mocking the userId in the request body
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
+    });
+
+    it('should return 200 and a success message if password change is successful', async () => {
+        const mockResponse = { message: "Senha alterada com sucesso" };
+
+        authService.updatePassword.mockResolvedValue(mockResponse);
+
+        req.body = { password: 'oldPassword', newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(mockResponse);
+        expect(authService.updatePassword).toHaveBeenCalledWith('12345', 'oldPassword', 'newPassword');
+    });
+
+    it('should return 400 if password or newPassword are not provided', async () => {
+        req.body = { password: 'oldPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Informe sua nova senha' });
+        expect(authService.updatePassword).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 if password is not provided', async () => {
+        req.body = { newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Informe sua senha' });
+        expect(authService.updatePassword).not.toHaveBeenCalled();
+    });
+
+    it('should return 401 if user is not found', async () => {
+        authService.updatePassword.mockRejectedValue(new Error('Usuário não encontrado'));
+
+        req.body = { password: 'oldPassword', newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Usuário não encontrado' });
+    });
+
+    it('should return 401 if the password is incorrect', async () => {
+        authService.updatePassword.mockRejectedValue(new Error('Senha incorreta'));
+
+        req.body = { password: 'wrongPassword', newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Senha incorreta' });
+    });
+
+    it('should return 500 in case of internal server error', async () => {
+        authService.updatePassword.mockRejectedValue(new Error('Erro inesperado'));
+
+        req.body = { password: 'oldPassword', newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+    });
+});

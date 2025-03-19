@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const MissingKeyError = require('../errors/missingKeyError');
+const User = require('./user');
 
 function transformDocument(doc, ret) {
     ret.id = ret._id;
@@ -274,15 +275,27 @@ characterSchema.post("save", function (error, doc, next) {
         return next(new MissingFieldError(field, `${field} é um campo obrigatório`));
     }
     next(error);
-  });
+});
 
-  characterSchema.post("validate", function (error, doc, next) {
+characterSchema.post("validate", function (error, doc, next) {
     if (error.name === "ValidationError") {
       const field = Object.keys(error.errors)[0];
       return next(new MissingKeyError(field, `${field} é um campo obrigatório`));
     }
   
     next(error);
+});
+
+characterSchema.post("save", async function (doc) {
+    await User.findByIdAndUpdate(doc.user, {
+        $inc: { 'stats.characters': 1 }
+    });
+});
+
+characterSchema.post("findOneAndDelete", async function (doc) {
+    await User.findByIdAndUpdate(doc.user, {
+        $inc: { 'stats.characters': -1 }
+    });
 });
 
 module.exports = mongoose.model('Character', characterSchema);

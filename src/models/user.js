@@ -39,6 +39,19 @@ const UserSchema = new mongoose.Schema(
         },
         verificationToken: {
             type: String,
+        },
+        refreshToken: {
+            type: String,
+        },
+        refreshTokenExpiresAt: {
+            type: Date,
+        },
+        stats: {
+            characters: { type: Number, default: 0 },
+            numRoll: { type: Number, default: 0 },
+            medRoll: { type: Number, default: 0 },
+            numCriticalSuccess: { type: Number, default: 0 },
+            numCriticalFail: { type: Number, default: 0 },
         }
     },
     {
