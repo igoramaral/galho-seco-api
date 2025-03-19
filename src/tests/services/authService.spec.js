@@ -19,7 +19,7 @@ describe('AuthService', () => {
                 id: '64feba7fbc13adf42caa92a1',
                 email: 'test@example.com',
                 nome: 'User',
-                dataNascimento: '2000-01-01',
+                dataNascimento: new Date(),
                 password: 'hashedpassword'
             });
 
@@ -70,7 +70,7 @@ describe('AuthService', () => {
                 _id: '64feba7fbc13adf42caa92a1',
                 email: 'test@example.com',
                 nome: 'User',
-                dataNascimento: '2000-01-01',
+                dataNascimento: new Date(),
                 password: 'hashedpassword',
                 refreshToken: 'valid-refresh-token',
                 refreshTokenExpiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24) // Token válido por 1 dia
@@ -91,7 +91,7 @@ describe('AuthService', () => {
                 _id: '64feba7fbc13adf42caa92a1',
                 email: 'test@example.com',
                 nome: 'User',
-                dataNascimento: '2000-01-01',
+                dataNascimento: new Date(),
                 password: 'hashedpassword',
                 refreshToken: 'expired-refresh-token',
                 refreshTokenExpiresAt: new Date(Date.now() - 1000 * 60 * 60) // Expirado há 1 hora
@@ -118,7 +118,7 @@ describe('AuthService', () => {
                 id: userId,
                 email: 'test@example.com',
                 nome: 'User',
-                dataNascimento: "2000-01-01",
+                dataNascimento: new Date(),
                 password: 'hashedpassword',
                 refreshToken: 'valid-refresh-token'
             });
