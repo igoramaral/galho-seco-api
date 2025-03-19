@@ -6,10 +6,8 @@ class AuthService {
 
     async login(email, password){
         // Check if user exists
-        const user = await User.findOne({ email })
-            .select("-isVerified -verificationToken -__v");
+        const user = await User.findOne({ email });
             
-        
         if (!user) {
             throw new Error("Usuário não encontrado"); 
         }
@@ -83,6 +81,48 @@ class AuthService {
         } else {
             throw new Error("Usuário não encontrado");
         }
+    }
+
+    async updatePassword(userId, password, newPassword){
+
+        // Check if user exists
+        const user = await User.findOne({ _id: userId });
+        if (!user) {
+            throw new Error("Usuário não encontrado"); 
+        }
+
+        const isPasswordValid = await user.checkPassword(password);
+
+        if (!isPasswordValid) {
+            throw new Error("Senha incorreta");
+        }
+
+        //generates new Access Token
+        const token = jwt.sign(
+            { userId: user._id },  
+            process.env.JWT_SECRET, 
+            { expiresIn: "1h" }     
+        );
+
+        //generates new Refresh Token
+        const refreshToken = crypto.randomBytes(40).toString('hex');
+        const refreshTokenExpiresAt = new Date();
+        refreshTokenExpiresAt.setDate(refreshTokenExpiresAt.getDate() + 7);
+
+        //saves new password and new refresh token to user
+        user.refreshToken = refreshToken;
+        user.refreshTokenExpiresAt = refreshTokenExpiresAt;
+        user.password = newPassword;
+        await user.save();
+
+        const userObject = user.toObject();
+        delete userObject.password;
+
+        const response = {
+            token: token,
+            refreshToken: refreshToken
+        }
+        return response
     }
 }
 
