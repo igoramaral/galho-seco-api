@@ -274,15 +274,27 @@ characterSchema.post("save", function (error, doc, next) {
         return next(new MissingFieldError(field, `${field} é um campo obrigatório`));
     }
     next(error);
-  });
+});
 
-  characterSchema.post("validate", function (error, doc, next) {
+characterSchema.post("validate", function (error, doc, next) {
     if (error.name === "ValidationError") {
       const field = Object.keys(error.errors)[0];
       return next(new MissingKeyError(field, `${field} é um campo obrigatório`));
     }
   
     next(error);
+});
+
+characterSchema.post("save", async function (doc) {
+    await mongoose.model('User').findByIdAndUpdate(doc.user, {
+        $inc: { 'stats.characters': 1 }
+    });
+});
+
+characterSchema.post("findOneAndDelete", async function (doc) {
+    await mongoose.model('User').findByIdAndUpdate(doc.user, {
+        $inc: { 'stats.characters': -1 }
+    });
 });
 
 module.exports = mongoose.model('Character', characterSchema);
