@@ -40,7 +40,7 @@ const router = express.Router();
  *                   description: JWT authentication
  *                 refreshToken:
  *                   type: string
- *                   description: Refresh Token
+ *                   description: Refresh Token 
  *                 user:
  *                   type: object
  *                   properties:
