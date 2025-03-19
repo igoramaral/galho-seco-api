@@ -177,3 +177,77 @@ describe('authController.logout', () => {
         expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
     });
 });
+
+describe('authController.changePassword', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { userId: '12345', body: {} };  // Mocking the userId in the request body
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
+        };
+        jest.clearAllMocks();
+    });
+
+    it('should return 200 and a success message if password change is successful', async () => {
+        const mockResponse = { message: "Senha alterada com sucesso" };
+
+        authService.updatePassword.mockResolvedValue(mockResponse);
+
+        req.body = { password: 'oldPassword', newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(mockResponse);
+        expect(authService.updatePassword).toHaveBeenCalledWith('12345', 'oldPassword', 'newPassword');
+    });
+
+    it('should return 400 if password or newPassword are not provided', async () => {
+        req.body = { password: 'oldPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Informe sua nova senha' });
+        expect(authService.updatePassword).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 if password is not provided', async () => {
+        req.body = { newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Informe sua senha' });
+        expect(authService.updatePassword).not.toHaveBeenCalled();
+    });
+
+    it('should return 401 if user is not found', async () => {
+        authService.updatePassword.mockRejectedValue(new Error('Usuário não encontrado'));
+
+        req.body = { password: 'oldPassword', newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Usuário não encontrado' });
+    });
+
+    it('should return 401 if the password is incorrect', async () => {
+        authService.updatePassword.mockRejectedValue(new Error('Senha incorreta'));
+
+        req.body = { password: 'wrongPassword', newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Senha incorreta' });
+    });
+
+    it('should return 500 in case of internal server error', async () => {
+        authService.updatePassword.mockRejectedValue(new Error('Erro inesperado'));
+
+        req.body = { password: 'oldPassword', newPassword: 'newPassword' };
+        await authController.changePassword(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+    });
+});

@@ -118,7 +118,7 @@ router.post('/login', authController.login);
  *                 example: 9445109c0e70b5e533a03160719bdb9ac7e4195e25a31767539a8980ae44b185a7e84c498fbf3ce0
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Request successful
  *         content:
  *           application/json:
  *             schema:
@@ -212,5 +212,80 @@ router.post('/refresh-token', authController.refreshAccessToken);
  *                   example: Internal Server Error
  */
 router.post('/logout', authMiddleware, authController.logout);
+
+/**
+ * @swagger
+ * /api/v1/change-password:
+ *   post:
+ *     description: Updates password of a User and generates a new token and refresh token
+ *     tags:
+ *       - Auth
+ *     summary: Changes User Password
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 required: true
+ *                 description: user's current password
+ *               newPassword:
+ *                 type: string
+ *                 required: true
+ *                 description: user's new password
+ *     responses:
+ *       200:
+ *         description: update successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: JWT authentication
+ *                 refreshToken:
+ *                   type: string
+ *                   description: Refresh Token
+ *       400:
+ *         description: Required fields password and/or newPassword were not provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: Informe sua senha
+ *       401:
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message. Indicates if user was not found, if password is invalid or if access token is invalid.
+ *                   example: Token inválido ou expirado
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: Internal Server Error
+ */
+router.post('/change-password', authMiddleware, authController.changePassword);
 
 module.exports = router;

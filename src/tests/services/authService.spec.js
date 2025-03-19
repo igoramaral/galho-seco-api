@@ -137,4 +137,71 @@ describe('AuthService', () => {
                 .rejects.toThrow('Usuário não encontrado');
         });
     });
+
+    describe("authService.updatePassword", () => {
+        let mockUser;
+
+        beforeEach(() => {
+            mockUser = new User({
+                nome: 'Test User',
+                email: 'testuser@example.com',
+                dataNascimento: new Date(),
+                password: 'hashedpassword', // Pode ser qualquer valor de senha aqui
+                isVerified: true,
+                stats: {
+                    characters: 1,
+                    numRoll: 2,
+                    medRoll: 3,
+                    numCriticalSuccess: 0,
+                    numCriticalFail: 0,
+                },
+            });
+
+            // Mocking the checkPassword method to return a resolved value
+            mockUser.checkPassword = jest.fn().mockResolvedValue(true); // Simulando senha válida
+        });
+
+        it('should update user password and return new tokens', async () => {
+            // Mocking User.findOne to return the mockUser instance
+            mockingoose(User).toReturn(mockUser, 'findOne');
+
+            const mockUserId = mockUser._id;
+            const mockPassword = 'oldpassword';
+            const mockNewPassword = 'newpassword';
+
+            const result = await AuthService.updatePassword(mockUserId, mockPassword, mockNewPassword);
+
+            expect(result).toHaveProperty('token');
+            expect(result).toHaveProperty('refreshToken');
+            expect(mockUser.checkPassword).toHaveBeenCalledWith(mockPassword); // Verificando se o checkPassword foi chamado corretamente
+        });
+
+        it('should throw error if password is incorrect', async () => {
+            // Simulando que a senha não é válida
+            mockUser.checkPassword.mockResolvedValue(false);
+
+            mockingoose(User).toReturn(mockUser, 'findOne');
+
+            const mockUserId = mockUser._id;
+            const mockPassword = 'wrongpassword';
+            const mockNewPassword = 'newpassword';
+
+            await expect(AuthService.updatePassword(mockUserId, mockPassword, mockNewPassword))
+                .rejects
+                .toThrow('Senha incorreta');
+        });
+    });
+
+    it('should throw error if user is not found', async () => {
+        // Mocking User.findOne to return null (usuário não encontrado)
+        mockingoose(User).toReturn(null, 'findOne');
+    
+        const mockUserId = 'nonexistentUserId';
+        const mockPassword = 'anyPassword';
+        const mockNewPassword = 'newpassword';
+    
+        await expect(AuthService.updatePassword(mockUserId, mockPassword, mockNewPassword))
+            .rejects
+            .toThrow('Usuário não encontrado');
+    });
 });

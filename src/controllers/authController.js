@@ -55,17 +55,40 @@ const logout = async (req, res) => {
         res.status(200).json({ message: "Logout realizado com sucesso" });
     } catch (err) {
         if (err.message == 'Usuário não encontrado') {
+            console.error("AuthController::logout - Error: ", err.message);
             res.status(404).json({ error: err.message });
         } else {
+            console.error("AuthController::logout - Error: ", err);
             res.status(500).json({ error: "Internal server error" });
         }
     }
 }
 
+const changePassword = async (req, res) => {
+    try {
+        const userId = req.userId;
 
+        const { password, newPassword } = req.body;
+        if (!password || !newPassword){
+            return res.status(400).json({ error: !password ? "Informe sua senha" : "Informe sua nova senha" });
+        }
+
+        let response = await authService.updatePassword(userId, password, newPassword);
+        res.status(200).json(response);
+    } catch (err) {
+        if (err.message == 'Usuário não encontrado' || err.message == 'Senha incorreta') {
+            console.error("AuthController::changePassword - Error: ", err.message);
+            res.status(401).json({ error: err.message });
+        } else {
+            console.error("AuthController::changePassword - Error: ", err);
+            res.status(500).json({ error: "Internal server error" });
+        }
+    }
+}
 
 module.exports = {
     login,
     refreshAccessToken,
-    logout
+    logout,
+    changePassword
 }
