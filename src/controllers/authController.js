@@ -1,4 +1,3 @@
-const { response } = require('express');
 const authService = require('../services/authService');
 
 const login = async (req, res) => {
@@ -12,12 +11,12 @@ const login = async (req, res) => {
     try {
         const login = await authService.login(email, password);
 
-        res.status(200).json({ token: login.token, refreshToken:login.refreshToken, user: login.user });
+        res.status(200).json({ token: login.token, user: login.user });
     } catch (err) {
         if(err.message === 'Usuário não encontrado' || err.message === "Senha incorreta"){
             res.status(401).json({ error: err.message })
         } else{
-            console.error("AuthController::login - Error: ", err);
+            console.error(err);
             res.status(500).json({ error: "Internal Server Error" })
         } 
     }
@@ -87,6 +86,7 @@ const changePassword = async (req, res) => {
 }
 
 module.exports = {
+
     login,
     refreshAccessToken,
     logout,

@@ -2,7 +2,6 @@ const AuthService = require('../../services/authService');
 const User = require('../../models/user');
 const mockingoose = require('mockingoose');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 
 jest.mock('jsonwebtoken', () => ({
     sign: jest.fn(() => 'mocked-jwt-token')
@@ -19,7 +18,7 @@ describe('AuthService', () => {
                 id: '64feba7fbc13adf42caa92a1',
                 email: 'test@example.com',
                 nome: 'User',
-                dataNascimento: '2000-01-01',
+                dataNascimento: new Date(),
                 password: 'hashedpassword'
             });
 
@@ -36,7 +35,6 @@ describe('AuthService', () => {
             const response = await AuthService.login('test@example.com', 'validpassword');
 
             expect(response).toHaveProperty('token', 'mocked-jwt-token');
-            expect(response).toHaveProperty('refreshToken');
             expect(response.user).toHaveProperty('id', '64feba7fbc13adf42caa92a1');
             expect(response.user).not.toHaveProperty('_id');
             expect(response.user).not.toHaveProperty('password');
@@ -70,7 +68,7 @@ describe('AuthService', () => {
                 _id: '64feba7fbc13adf42caa92a1',
                 email: 'test@example.com',
                 nome: 'User',
-                dataNascimento: '2000-01-01',
+                dataNascimento: new Date(),
                 password: 'hashedpassword',
                 refreshToken: 'valid-refresh-token',
                 refreshTokenExpiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24) // Token válido por 1 dia
@@ -91,7 +89,7 @@ describe('AuthService', () => {
                 _id: '64feba7fbc13adf42caa92a1',
                 email: 'test@example.com',
                 nome: 'User',
-                dataNascimento: '2000-01-01',
+                dataNascimento: new Date(),
                 password: 'hashedpassword',
                 refreshToken: 'expired-refresh-token',
                 refreshTokenExpiresAt: new Date(Date.now() - 1000 * 60 * 60) // Expirado há 1 hora
@@ -118,7 +116,7 @@ describe('AuthService', () => {
                 id: userId,
                 email: 'test@example.com',
                 nome: 'User',
-                dataNascimento: "2000-01-01",
+                dataNascimento: new Date(),
                 password: 'hashedpassword',
                 refreshToken: 'valid-refresh-token'
             });
@@ -190,18 +188,18 @@ describe('AuthService', () => {
                 .rejects
                 .toThrow('Senha incorreta');
         });
-    });
 
-    it('should throw error if user is not found', async () => {
-        // Mocking User.findOne to return null (usuário não encontrado)
-        mockingoose(User).toReturn(null, 'findOne');
-    
-        const mockUserId = 'nonexistentUserId';
-        const mockPassword = 'anyPassword';
-        const mockNewPassword = 'newpassword';
-    
-        await expect(AuthService.updatePassword(mockUserId, mockPassword, mockNewPassword))
-            .rejects
-            .toThrow('Usuário não encontrado');
+        it('should throw error if user is not found', async () => {
+            // Mocking User.findOne to return null (usuário não encontrado)
+            mockingoose(User).toReturn(null, 'findOne');
+        
+            const mockUserId = 'nonexistentUserId';
+            const mockPassword = 'anyPassword';
+            const mockNewPassword = 'newpassword';
+        
+            await expect(AuthService.updatePassword(mockUserId, mockPassword, mockNewPassword))
+                .rejects
+                .toThrow('Usuário não encontrado');
+        });
     });
 });
