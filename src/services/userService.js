@@ -75,7 +75,7 @@ class UserService {
     async deleteUser(userId){
         try {
 
-            const charDelete = await Character.deleteMany({ userId });
+            const charDelete = await Character.deleteMany({ user: userId });
             if (charDelete.deletedCount === 0){
                 console.log(`UserService::deleteUser - user ${userId} has no characters to be deleted`)
             } else {

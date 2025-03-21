@@ -10,8 +10,6 @@ function transformDocument(doc, ret) {
     delete ret.__v;  
     delete ret.verificationToken;
     delete ret.isVerified;
-    delete ret.refreshToken;
-    delete ret.refreshTokenExpiresAt;
     return ret;
 }
 
