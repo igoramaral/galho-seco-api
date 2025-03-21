@@ -16,7 +16,12 @@ const createCharacter = async (req, res) => {
                 message: err.message
              });
         } else {
-            res.status(500).json({ error: "Internal Server Error" })
+            if (err.message === "Usuário não encontrado"){
+                res.status(404).json({ error: err.message});
+            }else {
+                res.status(500).json({ error: "Internal Server Error" })
+            }
+            
         }
         
     }
