@@ -1,9 +1,11 @@
 const CharacterService = require('../../services/characterService');
 const Character = require('../../models/character');
+const User = require('../../models/user');
 const mockingoose = require('mockingoose');
 const characterService = require('../../services/characterService');
 const MissingKeyError = require('../../errors/missingKeyError');
 const { ObjectId } = require('mongodb');
+const { findById } = require('../../models/user');
 
 // removing logging from tests for better reading
 beforeAll(() => {
@@ -27,7 +29,9 @@ describe('characterService::createCharacter', ()=>{
         let userId = "65d5a7f2e7b3a3c4f4b9d5e1";
         let charData = { name: "Bruenor" };
         let savedChar = { _id: "1", name: "Bruenor", user: "65d5a7f2e7b3a3c4f4b9d5e1", system: {} };
+        let foundUser = { id: userId, nome: "João das Neves", email: "test@email.com", password: "123", dataNascimento: "2000-01-01" }
 
+        mockingoose(User).toReturn(foundUser, 'findOne');
         mockingoose(Character).toReturn(savedChar, 'save');
 
         const char = await characterService.createCharacter(charData, userId);
