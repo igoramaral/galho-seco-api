@@ -1,4 +1,5 @@
 const Character = require('../models/character');
+const User = require('../models/user');
 const MissingKeyError = require('../errors/missingKeyError');
 
 class CharacterService {
@@ -8,6 +9,11 @@ class CharacterService {
         let char = null;
 
         try {
+            let user = await User.findOne({ _id: userId });
+            if (!user){
+                throw new Error('Usuário não encontrado');
+            }
+
             char = new Character(characterData);
 
             await char.save().then((result) => {

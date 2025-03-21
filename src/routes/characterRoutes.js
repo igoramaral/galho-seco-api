@@ -536,6 +536,17 @@ const router = express.Router();
  *                                      type: string
  *                                      description: Error message.
  *                                      example: Token não fornecido
+ *              404:
+ *                  description: User not found
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              type: object
+ *                              properties:
+ *                                  error:
+ *                                      type: string
+ *                                      description: Error message.
+ *                                      example: Usuário não encontrado
  *              500:
  *                  description: Internal server error
  *                  content:
