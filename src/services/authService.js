@@ -36,6 +36,8 @@ class AuthService {
         await user.save();
 
         const userObject = user.toObject();
+        delete userObject.refreshToken;
+        delete userObject.refreshTokenExpiresAt;
         delete userObject.password;
 
         const response = {
