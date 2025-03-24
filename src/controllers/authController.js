@@ -11,7 +11,7 @@ const login = async (req, res) => {
     try {
         const login = await authService.login(email, password);
 
-        res.status(200).json({ token: login.token, user: login.user });
+        res.status(200).json({ token: login.token, refreshToken:login.refreshToken, user: login.user });
     } catch (err) {
         if(err.message === 'Usuário não encontrado' || err.message === "Senha incorreta"){
             res.status(401).json({ error: err.message })
