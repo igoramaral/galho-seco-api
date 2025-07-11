@@ -11,7 +11,7 @@ class CharacterService {
         const itemsData = characterData.items || [];
         delete characterData.items;
 
-        if (characterData.system.attributes.init){
+        if (characterData.system?.attributes?.init){
             characterData.system.attributes.ini = characterData.system.attributes.init;
             delete characterData.system.attributes.init;
         }
