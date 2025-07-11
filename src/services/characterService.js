@@ -1,11 +1,16 @@
 const Character = require('../models/character');
 const User = require('../models/user');
+const itemService = require('./itemService');
 const MissingKeyError = require('../errors/missingKeyError');
 
 class CharacterService {
 
     async createCharacter(characterData, userId){
         characterData.user = userId;
+
+        const itemsData = characterData.items || [];
+        delete characterData.items;
+
         let char = null;
 
         try {
@@ -15,10 +20,18 @@ class CharacterService {
             }
 
             char = new Character(characterData);
+            await char.save();
 
-            await char.save().then((result) => {
-                char = result
-            })
+            //create items
+            const createdItems = [];
+            for (const itemData of itemsData) {
+                const item = await itemService.createItem(itemData, char._id);
+                createdItems.push(item);
+            }
+
+            char.items = createdItems.map(i => i._id);
+            await char.save();
+            await char.populate('items');
         } catch (err) {
             if (err instanceof MissingKeyError){
                 console.error(`CharacterService::createCharacter - ${err.name}: ${err.message}`);
