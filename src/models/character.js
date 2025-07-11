@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const MissingKeyError = require('../errors/missingKeyError');
+const Item = require('./item');
 const User = require('./user');
 
 function transformDocument(doc, ret) {
@@ -62,43 +63,53 @@ const bonusSchema = new mongoose.Schema({
 const spellSlotSchema = new mongoose.Schema({
     spell1: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     spell2: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     spell3: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     spell4: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     spell5: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     spell6: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     spell7: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     spell8: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     spell9: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     },
     pact: {
         value: { type: Number, default: 0 },
-        override: { type: Number, default: null }
+        override: { type: Number, default: null },
+        available: { type: Number, default: null }
     }
 },
 { _id: false })
@@ -110,7 +121,7 @@ const attributeSchema = new mongoose.Schema({
         temp: { type: Number, default: 0 },
         tempmax: { type: Number, default: 0 },
     },
-    ini: {
+    init: {
         ability: { type: String, default: "" },
         bonus: { type: String, default: "" }
     },
@@ -162,9 +173,6 @@ const detailsSchema = new mongoose.Schema({
     ideal: { type: String, default: "" },
     bond: { type: String, default: "" },
     flaw: { type: String, default: "" },
-    race: { type: String, default: "" },
-    background: { type: String, default: "" },
-    originalClass: { type: String, default: "" },
     level: { type: Number, default: 0 },
     xp: {
         value: { type: Number, default: 0 },
@@ -217,9 +225,10 @@ const characterSchema = new mongoose.Schema(
         name: { type: String, required: true },
         img: { type: String, default: "" },
         user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
-        items: {
-            type: []
-        },
+        level: { type: Number, default: 1 },
+        class: { type: String, default: "" },
+        race: { type: String, default: "" },
+        items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
         system: {
             abilities: {
                 str: { type: abilitySchema, default: () => ({}) },
@@ -259,7 +268,8 @@ const characterSchema = new mongoose.Schema(
                 ep: { type: Number, default: 0 },
                 sp: { type: Number, default: 0 },
                 cp: { type: Number, default: 0 }
-            }
+            },
+            spells: { type: spellSlotSchema, default: () => ({}) }
         }
     },
     {
@@ -267,6 +277,43 @@ const characterSchema = new mongoose.Schema(
         toObject: { virtuals: true, transform: transformDocument }
     }
 )
+
+characterSchema.pre("save", async function (next) {
+    await this.populate('items');
+    // Update level
+    this.level = this.system?.details?.level || 1;
+
+    // Update race
+    const raceItem = this.items.find(item => item.type === 'race');
+    this.race = raceItem ? raceItem.name : '';
+
+    // Update class
+    const classItems = this.items
+        .filter(item => item.type === 'class')
+        .map(item => item.name);
+    this.class = classItems.join(', ');
+
+    // Update available slots
+    const slots = this.system?.spells;
+    if (slots) {
+        for (const key of Object.keys(slots)) {
+            const slot = slots[key];
+            if (slot && typeof slot.value === 'number') {
+                if (slot.available == null) {
+                    slot.available = slot.value;
+                }
+            }
+        }
+    }
+
+    // Update max HP
+    const hp = this.system?.attributes?.hp;
+    if (hp && hp.max == null) {
+        hp.max = hp.value;
+    }
+
+    next();
+});
 
 characterSchema.post("save", function (error, doc, next) {
     //Missing key Tretment
@@ -293,6 +340,10 @@ characterSchema.post("save", async function (doc) {
 });
 
 characterSchema.post("findOneAndDelete", async function (doc) {
+    if (doc) {
+        await Item.deleteMany({ character: doc._id });
+    };
+    
     await User.findByIdAndUpdate(doc.user, {
         $inc: { 'stats.characters': -1 }
     });
