@@ -1,11 +1,22 @@
 const Character = require('../models/character');
 const User = require('../models/user');
+const itemService = require('./itemService');
 const MissingKeyError = require('../errors/missingKeyError');
 
 class CharacterService {
 
     async createCharacter(characterData, userId){
         characterData.user = userId;
+
+        const itemsData = characterData.items || [];
+        delete characterData.items;
+
+        if (characterData.system?.attributes?.init){
+            characterData.system.attributes.ini = characterData.system.attributes.init;
+            delete characterData.system.attributes.init;
+        }
+        
+
         let char = null;
 
         try {
@@ -15,10 +26,20 @@ class CharacterService {
             }
 
             char = new Character(characterData);
+            await char.save();
 
-            await char.save().then((result) => {
-                char = result
-            })
+            //create items
+            const createdItems = [];
+            for (const itemData of itemsData) {
+                const item = await itemService.createItem(itemData, char._id);
+                if (item) {
+                    createdItems.push(item);
+                }
+            }
+
+            char.items = createdItems.map(i => i._id);
+            await char.save();
+            await char.populate('items');
         } catch (err) {
             if (err instanceof MissingKeyError){
                 console.error(`CharacterService::createCharacter - ${err.name}: ${err.message}`);
@@ -38,6 +59,7 @@ class CharacterService {
 
         if (char){
             console.log(`CharacterService::findCharacter - Character with id ${charId} found successfully`);
+            await char.populate('items');
             return char
         }
 
@@ -46,7 +68,7 @@ class CharacterService {
     }
 
     async getAllCharacters(userId){
-        let chars = await Character.find({user: userId}).select("-system");
+        let chars = await Character.find({user: userId}).select("-system -items");
 
         console.log(`CharacterService::getAllCharacters - ${chars.length} characters of user ${userId} were found`);
         return chars;
@@ -64,6 +86,7 @@ class CharacterService {
             char = await char.save();
 
             console.log(`CharacterService::updateCharacter - Character ${charId} updated successfully`);
+            await char.populate('items');
             return char;
         } catch(err){
             if(err instanceof MissingKeyError){
