@@ -24,7 +24,7 @@ const abilitySchema = new mongoose.Schema({
 
 const skillSchema = new mongoose.Schema({
     value: { type: Number, default: 0 },
-    ability: { type: String, required: true },
+    ability: { type: String, required: true, default: "" },
     bonuses: {
         check: { type: String, default: "" },
         passive: { type: String, default: "" }
@@ -121,7 +121,7 @@ const attributeSchema = new mongoose.Schema({
         temp: { type: Number, default: 0 },
         tempmax: { type: Number, default: 0 },
     },
-    init: {
+    ini: {
         ability: { type: String, default: "" },
         bonus: { type: String, default: "" }
     },
@@ -226,7 +226,7 @@ const characterSchema = new mongoose.Schema(
         img: { type: String, default: "" },
         user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
         level: { type: Number, default: 1 },
-        class: { type: String, default: "" },
+        classes: { type: String, default: "" },
         race: { type: String, default: "" },
         items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
         system: {
@@ -279,20 +279,6 @@ const characterSchema = new mongoose.Schema(
 )
 
 characterSchema.pre("save", async function (next) {
-    await this.populate('items');
-    // Update level
-    this.level = this.system?.details?.level || 1;
-
-    // Update race
-    const raceItem = this.items.find(item => item.type === 'race');
-    this.race = raceItem ? raceItem.name : '';
-
-    // Update class
-    const classItems = this.items
-        .filter(item => item.type === 'class')
-        .map(item => item.name);
-    this.class = classItems.join(', ');
-
     // Update available slots
     const slots = this.system?.spells;
     if (slots) {
