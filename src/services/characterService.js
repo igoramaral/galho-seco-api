@@ -11,6 +11,9 @@ class CharacterService {
         const itemsData = characterData.items || [];
         delete characterData.items;
 
+        characterData.system.attributes.ini = characterData.system.attributes.init;
+        delete characterData.system.attributes.init;
+
         let char = null;
 
         try {
@@ -26,7 +29,9 @@ class CharacterService {
             const createdItems = [];
             for (const itemData of itemsData) {
                 const item = await itemService.createItem(itemData, char._id);
-                createdItems.push(item);
+                if (item) {
+                    createdItems.push(item);
+                }
             }
 
             char.items = createdItems.map(i => i._id);
@@ -51,6 +56,7 @@ class CharacterService {
 
         if (char){
             console.log(`CharacterService::findCharacter - Character with id ${charId} found successfully`);
+            await char.populate('items');
             return char
         }
 
@@ -59,7 +65,7 @@ class CharacterService {
     }
 
     async getAllCharacters(userId){
-        let chars = await Character.find({user: userId}).select("-system");
+        let chars = await Character.find({user: userId}).select("-system -items");
 
         console.log(`CharacterService::getAllCharacters - ${chars.length} characters of user ${userId} were found`);
         return chars;
@@ -77,6 +83,7 @@ class CharacterService {
             char = await char.save();
 
             console.log(`CharacterService::updateCharacter - Character ${charId} updated successfully`);
+            await char.populate('items');
             return char;
         } catch(err){
             if(err instanceof MissingKeyError){
