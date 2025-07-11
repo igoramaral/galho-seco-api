@@ -33,10 +33,16 @@ class ItemService {
     async createItem(itemData, characterId) {
         try {
             itemData.character = characterId;
+            itemData.foundryId = itemData._id;
             delete itemData._id;
 
             if (!itemData.type) {
-                new MissingKeyError('type', `type é um campo obrigatório`)
+                throw new Error('type é um campo obrigatório');
+            }
+
+            //skips container items
+            if (itemData.type == 'container') {
+                return;
             }
 
             const Model = modelsByType[itemData.type];
@@ -57,13 +63,7 @@ class ItemService {
             );
             return item;
         } catch (err) {
-            if (err instanceof MissingKeyError) {
-                console.error(
-                    `ItemService::createItem - ${err.name}: ${err.message}`
-                );
-            } else {
-                console.error("ItemService::createItem - ", err);
-            }
+            console.error("ItemService::createItem - ", err);
             throw err;
         }
     }
@@ -117,13 +117,7 @@ class ItemService {
             );
             return updated;
         } catch (err) {
-            if (err instanceof MissingKeyError) {
-                console.error(
-                    `ItemService::updateItem - ${err.name}: ${err.message}`
-                );
-            } else {
-                console.error("ItemService::updateItem - ", err);
-            }
+            console.error("ItemService::updateItem - ", err);
             throw err;
         }
     }
