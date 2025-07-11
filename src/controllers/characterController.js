@@ -1,11 +1,14 @@
 const characterService = require('../services/characterService');
 const MissingKeyError = require('../errors/missingKeyError');
+const updateCharacterDerivedFields = require('../utils/updateCharacterDerivedFields');
 
 const createCharacter = async (req, res) => {
     const userId = req.userId;
 
     try {
         let char = await characterService.createCharacter(req.body, userId);
+
+        char = await updateCharacterDerivedFields(char.id, userId);
 
         res.status(201).json(char);
     } catch(err){
@@ -58,7 +61,7 @@ const getAllCharacters = async (req, res) => {
 const updateCharacter = async (req, res) => {
     const userId = req.userId;
     const charId = req.params.id;
-    const charData = req.body
+    const charData = req.body;
 
     try {
         let char = await characterService.updateCharacter(charId, userId, charData);
