@@ -1,8 +1,10 @@
 const characterController = require('../../controllers/characterController');
 const characterService = require('../../services/characterService');
+const updateCharacterDerivedFields = require('../../utils/updateCharacterDerivedFields');
 const MissingKeyError = require('../../errors/missingKeyError');
 
 jest.mock('../../services/characterService');
+jest.mock('../../utils/updateCharacterDerivedFields', () => jest.fn());
 
 // removing logging from tests for better reading
 beforeAll(() => {
@@ -35,7 +37,8 @@ describe('characterController.createCharacter', () => {
                         value: 16,
                         proficient: 1
                     }
-                }
+                },
+                items: []
             }
         };
         res = {
@@ -48,6 +51,7 @@ describe('characterController.createCharacter', () => {
         let mockChar = { _id: '65a1234567890abcde123456', user: req.userId, ...req.body };
 
         characterService.createCharacter.mockResolvedValue(mockChar);
+        updateCharacterDerivedFields.mockResolvedValue(mockChar);
 
         await characterController.createCharacter(req, res);
 
