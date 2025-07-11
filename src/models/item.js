@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const ItemBaseSchema = new mongoose.Schema(
     {
         name: { type: String, required: true },
-        foundryId: { type: String, required: true },
+        foundryId: { type: String, default: "" },
         type: {
             type: String,
             required: true,
