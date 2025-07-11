@@ -46,7 +46,42 @@ const router = express.Router();
  *       500:
  *         description: Internal Server Error
  */
-router.post('/item', authMiddleware, itemController.createItem);
+router.post('/character/:characterId/item', authMiddleware, itemController.createItem);
+
+/**
+ * @swagger
+ * /characters/{characterId}/items:
+ *   get:
+ *     summary: Get all items of a character
+ *     security:
+ *       - bearerAuth: [] 
+ *     tags: [Items]
+ *     parameters:
+ *       - in: path
+ *         name: characterId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Character ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *               example:
+ *                 name: "Item Name"
+ *                 type: "tool"
+ *                 system: {}
+ *     responses:
+ *       200:
+ *         description: Itens returned successfully
+ *       404:
+ *         description: Character not Found
+ */
+router.get('/character/:characterId/items', authMiddleware, itemController.getAllItems);
 
 /**
  * @swagger
@@ -83,7 +118,7 @@ router.post('/item', authMiddleware, itemController.createItem);
  *       500:
  *         description: Internal Server Error
  */
-router.post('/items', authMiddleware, itemController.createManyItems);
+router.post('/character/:characterId/items', authMiddleware, itemController.createManyItems);
 
 /**
  * @swagger
@@ -121,7 +156,7 @@ router.post('/items', authMiddleware, itemController.createManyItems);
  *       500:
  *         description: Internal Server Error
  */
-router.put('/item/:itemId', authMiddleware, itemController.updateItem);
+router.put('/character/:characterId/item/:itemId', authMiddleware, itemController.updateItem);
 
 /**
  * @swagger
@@ -150,6 +185,6 @@ router.put('/item/:itemId', authMiddleware, itemController.updateItem);
  *       500:
  *         description: Internal Server Error
  */
-router.delete('/item/:itemId', authMiddleware, itemController.deleteItem);
+router.delete('/character/:characterId/item/:itemId', authMiddleware, itemController.deleteItem);
 
 module.exports = router;
