@@ -8,6 +8,7 @@ const swaggerSpec = require('./swagger')
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const characterRoutes = require('./routes/characterRoutes');
+const itemRoutes = require('./routes/itemRoutes');
 
 // initializing the application
 const app = express();
@@ -24,6 +25,7 @@ app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec,{
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', authRoutes);
 app.use('/api/v1', characterRoutes);
+app.use('/api/v1/character/:id', characterRoutes);
 
 // Start the server
 mongoose
