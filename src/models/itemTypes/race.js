@@ -26,7 +26,7 @@ const SystemSchema = new mongoose.Schema({
         subtype: { type: String, default: "" },
         custom: { type: String, default: "" } 
     },
-        advancement: []
+    advancement: []
 }, { _id: false });
 
 const RaceSchema = new mongoose.Schema({

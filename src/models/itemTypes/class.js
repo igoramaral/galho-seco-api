@@ -22,6 +22,7 @@ const SystemSchema = new mongoose.Schema({
         spent: { type: Number, default: 0 },
         additional: { type: String, default: "" },
     },
+    advancement: []
 }, { _id: false });
 
 const ClassSchema = new mongoose.Schema({
